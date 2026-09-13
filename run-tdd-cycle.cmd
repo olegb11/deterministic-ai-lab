@@ -71,7 +71,7 @@ IF EXIST "src\WebUI\package.json" (
 :: =========================================================================
 ::   === [FEATURE FINALIZATION] Step 2: Stryker Mutation Testing Guard ===
 :: =========================================================================
-dotnet dotnet-stryker --break-at 100
+dotnet stryker --break-at 100
 IF !ERRORLEVEL! NEQ 0 (
     echo.
     echo [ERROR] Mutation testing failed or score is below 100%%!
