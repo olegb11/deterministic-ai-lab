@@ -17,6 +17,19 @@ packages/
 *.userosscache
 *.sln.docstates
 
+# Testing & Mutation Testing Artifacts
+TestResults/
+StrykerOutput/
+.stryker-tmp/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# Local Tools & Binary Packages (Stryker offline cache)
+tools/stryker/stryker.zip
+tools/stryker/tools/
+
 # Environment & Logs
 .env
 .env.local
