@@ -9,7 +9,7 @@
 ---
 
 ### 1. Project Overview
-Development of a production-grade web application template with strict separation of concerns, utilizing **Dapper** and **MS SQL** for data access via the standard `IDbConnection` abstraction. The project implements the CQRS pattern using **MediatR**, isolates DTOs and contracts into a separate project using strictly immutable types, enforces standard-based **OAuth 2.0 / OpenID Connect (OIDC)** Bearer token authentication and policy-based authorization, integrates **Swagger/OpenAPI** with OAuth2/Bearer authorization flow, includes a dedicated React + TypeScript frontend, and strictly forbids flat/monolithic entry points by enforcing a clean, modular structure for `Program.cs`.
+Development of a production-grade web application template with strict separation of concerns, utilizing **Dapper** and **PostgreSQL** for data access via the standard `IDbConnection` abstraction. The project implements the CQRS pattern using **MediatR**, isolates DTOs and contracts into a separate project using strictly immutable types, enforces standard-based **OAuth 2.0 / OpenID Connect (OIDC)** Bearer token authentication and policy-based authorization, integrates **Swagger/OpenAPI** with OAuth2/Bearer authorization flow, includes a dedicated React + TypeScript frontend, and strictly forbids flat/monolithic entry points by enforcing a clean, modular structure for `Program.cs`.
 
 ---
 
@@ -18,8 +18,8 @@ Development of a production-grade web application template with strict separatio
 * **Frontend Platform:** React + Vite + TypeScript
 * **Architectural Pattern:** Clean Architecture / CQRS (Command Query Responsibility Segregation)
 * **Mediator:** `MediatR`
-* **Data Access:** Dapper with MS SQL (`Microsoft.Data.SqlClient`)
-* **Database Abstraction:** Standard `System.Data.IDbConnection` (no EF Core, no direct concrete database classes in business logic).
+* **Data Access:** Dapper with PostgreSQL (`Npgsql`)
+* **Database Abstraction:** Standard `System.Data.IDbConnection` implemented via `NpgsqlConnection` (no EF Core, no direct concrete database classes in business logic).
 * **Security & Identity:** OAuth 2.0 & OpenID Connect (OIDC) via `Microsoft.AspNetCore.Authentication.JwtBearer` for token validation and policy-based authorization based on claims/scopes.
 * **API Documentation:** Swagger / OpenAPI with JWT Bearer / OAuth2 Security Definitions
 * **Testing & Quality:** 
