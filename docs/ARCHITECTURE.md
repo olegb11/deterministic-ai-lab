@@ -56,10 +56,10 @@ The solution (`.sln`) must be located at the **root level** (above the `src` and
 │       └── package.json
 │
 └── tests/
-    ├── {ProjectName}.Domain.Tests/             <-- Fast Unit Tests for Pure Domain Rules
-    ├── {ProjectName}.Application.Tests/        <-- Unit tests for Handlers & CQRS (NSubstitute, DbConnection Mocks)
-    ├── {ProjectName}.Api.IntegrationTests/     <-- HTTP Pipeline & Auth Integration Tests (WebApplicationFactory)
-    └── {ProjectName}.WebUI.Tests/              <-- Component & E2E Tests (Vitest / Playwright)
+    ├── {ProjectName}.Domain.Tests/             <-- Fast Unit Tests: Validates pure domain rules, business invariants, and entity behaviors (No mocks, absolute isolation).
+    ├── {ProjectName}.Application.Tests/        <-- Unit Tests: Validates use cases, CQRS handlers, and validators (Uses NSubstitute/mocks for external dependencies and database abstractions).
+    ├── {ProjectName}.Api.IntegrationTests/     <-- Integration Tests: Validates full HTTP pipeline, routing, middleware, and auth flows in-memory via WebApplicationFactory.
+    └── {ProjectName}.WebUI.Tests/              <-- Component & E2E Tests: Vitest for UI components and Playwright for full user flow validation against the API.
 
 ```
 
