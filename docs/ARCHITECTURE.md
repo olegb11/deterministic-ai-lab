@@ -23,7 +23,8 @@ Development of a production-grade web application template with strict separatio
 * **Security & Identity:** OAuth 2.0 & OpenID Connect (OIDC) via `Microsoft.AspNetCore.Authentication.JwtBearer` for token validation and policy-based authorization based on claims/scopes.
 * **API Documentation:** Swagger / OpenAPI with JWT Bearer / OAuth2 Security Definitions
 * **Testing & Quality:** 
-  * Backend: xUnit, NSubstitute (mocking), Shouldly, `WebApplicationFactory` (Integration), Stryker.NET (Mutation Testing)
+  * BDD & Acceptance: Reqnroll (Gherkin feature files & step definitions)
+  * Backend Unit/Integration: xUnit, NSubstitute (mocking), FluentAssertions / Shouldly, `WebApplicationFactory` (Integration), Stryker.NET (Mutation Testing)
   * Frontend: Vitest, React Testing Library, Playwright (E2E)
 
 ---
@@ -34,6 +35,14 @@ The solution (`.sln`) must be located at the **root level** (above the `src` and
 
 ```text
 {ProjectName}.sln                               <-- Solution file at the root level
+│
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── METHODOLOGY.md
+│   └── specs/                                  <-- Executable business specifications (.feature files)
+│       ├── discount-policy.feature
+│       ├── promo-code-policy.feature
+│       └── shopping-cart-policy.feature
 │
 ├── src/
 │   ├── Domain/
@@ -58,6 +67,7 @@ The solution (`.sln`) must be located at the **root level** (above the `src` and
 └── tests/
     ├── {ProjectName}.Domain.Tests/             <-- Fast Unit Tests: Validates pure domain rules, business invariants, and entity behaviors (No mocks, absolute isolation).
     ├── {ProjectName}.Application.Tests/        <-- Unit Tests: Validates use cases, CQRS handlers, and validators (Uses NSubstitute/mocks for external dependencies and database abstractions).
+    ├── {ProjectName}.Domain.BDD.Tests/         <-- BDD Acceptance Tests: Reqnroll step definitions linking Gherkin specs to Domain/Application execution.
     ├── {ProjectName}.Api.IntegrationTests/     <-- Integration Tests: Validates full HTTP pipeline, routing, middleware, and auth flows in-memory via WebApplicationFactory.
     └── {ProjectName}.WebUI.Tests/              <-- Component & E2E Tests: Vitest for UI components and Playwright for full user flow validation against the API.
 
@@ -111,5 +121,14 @@ When implementing complex or non-standard solutions, code must strictly adhere t
 //    where .CreateCommand() returns a DbCommand".
 // Therefore we mock a DbConnection (abstract ADO.NET base class) instead of IDbConnection,
 // and wire up the full DbConnection -> DbCommand -> DbDataReader chain it needs.
+
+```
+
+---
+
+### 7. BDD Specifications and Execution Standards
+
+* **Executable Specifications via Reqnroll:** Business rules (such as discount calculations, promo code validations, and cart constraints) must be defined using Gherkin syntax (`.feature` files) and bound to backend execution via Reqnroll step definitions.
+* **Compilation & Test Discovery:** Feature files are compiled into executable xUnit tests at build time using `Reqnroll.Tools.MsBuild.Generation`, ensuring that specifications remain strictly synchronized with domain code behavior.
 
 ```

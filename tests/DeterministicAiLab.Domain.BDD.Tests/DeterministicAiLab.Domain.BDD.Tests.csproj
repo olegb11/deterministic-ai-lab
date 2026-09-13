@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="FluentAssertions" Version="8.10.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Reqnroll" Version="3.3.4" />
+    <PackageReference Include="Reqnroll.xUnit" Version="3.3.4" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+	<PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="3.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Domain\DeterministicAiLab.Domain\DeterministicAiLab.Domain.csproj" />
+  </ItemGroup>
+
+    <ItemGroup>
+		<None Include="..\..\docs\specs\*.feature">
+			<Link>Features\%(Filename)%(Extension)</Link>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+ 
+
+	<Target Name="EnsureFeatureFilesExist" BeforeTargets="BeforeBuild">
+		<ItemGroup>
+			<FoundFeatures Include="..\..\docs\specs\*.feature" />
+		</ItemGroup>
+		<Error Condition="'@(FoundFeatures)' == ''" Text="CRITICAL: No .feature files found in docs/specs! BDD tests cannot run without specifications." />
+	</Target>
+
+
+
+</Project>
