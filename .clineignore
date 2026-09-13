@@ -1,0 +1,30 @@
+﻿# Build outputs & caches
+bin/
+obj/
+.vs/
+.vscode/
+dist/
+build/
+out/
+
+# Dependencies
+node_modules/
+packages/
+
+# .NET User specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Environment & Logs
+.env
+.env.local
+*.log
+logs/
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
