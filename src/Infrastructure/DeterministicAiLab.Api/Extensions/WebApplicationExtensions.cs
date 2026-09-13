@@ -19,14 +19,14 @@ public static class WebApplicationExtensions
     {
         app.UseHttpsRedirection();
         
-        // TODO: Добавить app.UseAuthentication() и app.UseAuthorization() при внедрении авторизации.
+        // TODO: Add app.UseAuthentication() and app.UseAuthorization() when authorization is implemented.
         
         return app;
     }
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        // TODO: Здесь будут мапиться наши API эндпоинты
+        // TODO: API endpoints will be mapped here
         return app;
     }
 }
