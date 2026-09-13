@@ -71,16 +71,11 @@ IF EXIST "src\WebUI\package.json" (
 :: =========================================================================
 ::   === [FEATURE FINALIZATION] Step 2: Stryker Mutation Testing Guard ===
 :: =========================================================================
-IF EXIST "tools\stryker\tools\net8.0\any\Stryker.CLI.dll" (
-    dotnet exec tools\stryker\tools\net8.0\any\Stryker.CLI.dll --break-at 100
-    IF !ERRORLEVEL! NEQ 0 (
-        echo.
-        echo [ERROR] Mutation testing failed or score is below 100%%!
-        echo Fix your tests to kill all mutants. Auto-commit blocked.
-        exit /b 1
-    )
-) ELSE (
-    echo [ERROR] Stryker.CLI.dll not found in tools\stryker!
+dotnet dotnet-stryker --break-at 100
+IF !ERRORLEVEL! NEQ 0 (
+    echo.
+    echo [ERROR] Mutation testing failed or score is below 100%%!
+    echo Fix your tests to kill all mutants. Auto-commit blocked.
     exit /b 1
 )
 
@@ -91,7 +86,6 @@ echo Creating Feature Finalization Auto-Commit...
 git add .
 git commit -m "feat(tdd): feature finalization completed [100%% MUTANTS KILLED]"
 exit /b 0
-
 
 :SAFE_FAIL_HANDLER
 echo.
