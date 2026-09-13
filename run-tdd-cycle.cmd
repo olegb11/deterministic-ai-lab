@@ -68,15 +68,14 @@ IF EXIST "src\WebUI\package.json" (
     )
 )
 
-echo.
-echo =========================================================================
-echo   === [FEATURE FINALIZATION] Step 2: Stryker Mutation Testing Guard ===
-echo =========================================================================
+:: =========================================================================
+::   === [FEATURE FINALIZATION] Step 2: Stryker Mutation Testing Guard ===
+:: =========================================================================
 IF EXIST "tools\stryker\tools\net8.0\any\Stryker.CLI.dll" (
     dotnet exec tools\stryker\tools\net8.0\any\Stryker.CLI.dll --break-at 100
-    IF %ERRORLEVEL% NEQ 0 (
+    IF !ERRORLEVEL! NEQ 0 (
         echo.
-        echo [MUTANT SURVIVED] Mutation score is below 100%%!
+        echo [ERROR] Mutation testing failed or score is below 100%%!
         echo Fix your tests to kill all mutants. Auto-commit blocked.
         exit /b 1
     )
@@ -86,7 +85,8 @@ IF EXIST "tools\stryker\tools\net8.0\any\Stryker.CLI.dll" (
 )
 
 echo.
-echo [SUCCESS] 100%% Mutants Killed & All Tests Passed!
+echo [SUCCESS] 100%% Mutants Killed.
+echo All Tests Passed!
 echo Creating Feature Finalization Auto-Commit...
 git add .
 git commit -m "feat(tdd): feature finalization completed [100%% MUTANTS KILLED]"
