@@ -4,13 +4,13 @@
 > *Fast Loop: Red Test -> Green Code -> (Test Fail? -> Rollback) -> Refactor -> Auto-Commit.*  
 > *Feature Finalization: + Mutation Check (`run-tdd-cycle.cmd --full`) before the final Auto-Commit.*
 
-## 🎯 Manifesto & Core Principles: Deterministic Execution Framework (DEF)
+## 🎯 Manifesto & Core Principles
 
 Modern "Vibe Coding" and stateful chat-based AI development inevitably lead to **Loss of Intent**, **Context Drift**, and unmaintainable codebases. 
 
-`deterministic-ai-lab` validates a strict software engineering methodology known as the **Deterministic Execution Framework (DEF)**. Under DEF, the **LLM is not a partner in conversation, but a stateless code compilation unit**, and code validation is treated as precise, repeatable, and objective measurement of software correctness.
+`deterministic-ai-lab` validates a strict software engineering methodology for deterministic AI code generation. Under this methodology, the **LLM is not a partner in conversation, but a stateless code compilation unit**, and code validation is treated as a precise, repeatable, and objective measurement of software correctness.
 
-### Key Rules of DEF
+### Key Rules
 1. **Stateless AI Execution:** Zero persistent memory in chat sessions. State is stored solely in the Git repository (Code, Tests, Specs).
 2. **Human Owns the Red Phase:** LLMs are strictly forbidden from writing unit tests or business constraints on their own from raw natural language.
 3. **Executable Specs First:** Business invariants and domain logic must be formalized in Git (`docs/specs/*.feature`) and verified via automated Reqnroll BDD acceptance tests before feature finalization.
@@ -104,4 +104,3 @@ The Mutation Agent runs on feature finalization only (`run-tdd-cycle.cmd --full`
 * **Mutation Testing:** Stryker.NET (`dotnet-stryker`)
 * **AI Engine:** Stateless API Payload (Claude / OpenAI / Local LLM)
 * **Control:** Windows CMD (run-tdd-cycle.cmd) / Git CLI
-
