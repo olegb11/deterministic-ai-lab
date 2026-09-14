@@ -85,19 +85,71 @@ The solution (`.sln`) must be located at the **root level** (above the `src` and
 
 ---
 
-### 5. WebUI Layer (React + TypeScript) Specific Rules
+### 5. Backend & Application Layer Testing Standards
+
+#### 5.1 Domain Unit Tests (`{ProjectName}.Domain.Tests`)
+
+* **Objective:** Verify pure business rules, entity invariants, and Value Object behavior.
+* **Isolation:** Absolute isolation. No mocks, I/O operations, database access, or external packages are permitted.
+* **Characteristics:** Sub-millisecond execution (Zero-dependency Unit Tests).
+
+#### 5.2 Application Layer Tests (`{ProjectName}.Application.Tests`)
+
+The `{ProjectName}.Application.Tests` project is responsible for unit testing use cases, CQRS handlers (`IRequestHandler<TRequest, TResponse>`), validators (FluentValidation), and MediatR pipeline behaviors.
+
+* **Purpose and Isolation Boundaries:**
+1. **Isolation from External Systems:** Application layer tests **must never** interact with real databases, networks, file systems, or third-party APIs.
+2. **Mocking External Dependencies:** All external services, infrastructure abstractions, and contracts (`IDbConnection`, `IUserContext`, external APIs) must be substituted using **NSubstitute**.
+3. **Real Domain Objects:** Domain entities, Value Objects, and domain logic **must not be mocked**. Handlers must be supplied with actual instances of domain objects instantiated from `{ProjectName}.Domain`.
+
+
+* **Mandatory Test Engineering Rules:**
+* **Testing CQRS Commands & Queries:**
+* Verify that domain business methods are invoked correctly during command execution.
+* Validate proper mapping and accurate data retrieval for DTOs (from `{ProjectName}.Contracts`) during query execution.
+* Verify failure handling scenarios (e.g., domain exception throwing or returning `Result<T>` failures on invalid inputs).
+
+
+* **Testing `IUserContext` & Authorization Boundaries:**
+* Handlers depending on identity/security context must be tested against varying `IUserContext` configurations (supplying different `UserId`s, roles, and scopes).
+
+
+* **Dapper Query Mocking Rule (`IDbConnection`):**
+* When testing handlers that execute async Dapper queries, developers **must strictly adhere** to the `DbConnection` -> `DbCommand` -> `DbDataReader` mocking pattern (defined in Section 6). Direct mocking of the `IDbConnection` interface for `QueryAsync` / `ExecuteAsync` is forbidden due to internal ADO.NET requirements within Dapper.
+
+
+* **Validation Suite Testing:**
+* Every Command or Query backed by a FluentValidation validator must include unit tests targeting boundary values (Boundary Value Analysis).
+
+
+
+
+
+#### 5.3 Acceptance & BDD Tests (`{ProjectName}.Domain.BDD.Tests`)
+
+* **Objective:** Execute automated validation of executable business specifications (`docs/specs/*.feature`) via Reqnroll.
+* **Execution:** Binds Gherkin scenarios directly to Domain and Application layer execution. Acts as the primary reference standard during the Fast Loop and Mutation Guard evaluation.
+
+#### 5.4 API Integration Tests (`{ProjectName}.Api.IntegrationTests`)
+
+* **Objective:** Validate the complete HTTP pipeline, routing, middleware pipeline, JSON serialization, and OAuth 2.0 / OIDC authentication and authorization policies.
+* **Infrastructure:** Runs in-memory via ASP.NET Core `WebApplicationFactory<Program>`.
+
+---
+
+### 6. WebUI Layer (React + TypeScript) Specific Rules
 
 * **Physical Isolation:** React components communicate with the backend exclusively via HTTP/REST endpoints exposed by `{ProjectName}.Api`. No C# dependencies are permitted inside the `WebUI` project.
 * **Contract Synchronization:** TypeScript interfaces in `src/WebUI/src/api/` MUST match contracts defined in `{ProjectName}.Contracts`. Whenever the Swagger specification changes, TypeScript client contracts must be auto-generated or synchronized.
 * **UI Testing Strategy:**
-* Component Unit Tests: `Vitest` + `React Testing Library` for fast feedback on component state and render logic.
-* Integration / E2E Tests: `Playwright` for complete user flow validation against the API.
+* **Component Unit Tests:** `Vitest` + `React Testing Library` for fast feedback on component state and render logic.
+* **Integration / E2E Tests:** `Playwright` for complete user flow validation against the API.
 
 
 
 ---
 
-### 6. Engineering Standards & AI-Generated Workarounds Guidelines
+### 7. Engineering Standards & AI-Generated Workarounds Guidelines
 
 * **Modular Program.cs Architecture Rules:**
 To maintain strict separation of concerns and avoid monolithic entry points, `Program.cs` must act purely as a high-level orchestrator. All Dependency Injection (DI) registrations and middleware pipeline setup must be offloaded to standalone extension methods in `{ProjectName}.Api/Extensions/`:
@@ -109,7 +161,12 @@ Inline `builder.Services.Add...` registrations or complex inline middleware logi
 * **Mutation Testing Quality Gate:**
 All Application Handlers and Domain logic must pass **Stryker.NET** mutation testing with a minimum mutation score break threshold of **100%** on feature finalization (`--break-at 100`).
 * **Mandatory Documentation of Non-Standard Code / Workarounds (`// NOTE:` format):**
-If an AI agent or developer implements a non-standard technical workaround, bypasses a standard framework interface in favor of an abstract base class, or handles complex framework quirks (such as Dapper's async method constraints requiring a concrete base connection rather than an interface substitute), **an explicit multi-line comment using the `NOTE` format is mandatory**. The comment structure must clearly state: (1) **The Limitation:** state clearly which framework, library, or platform constraint triggered the workaround (including exact exception messages if applicable); (2) **The Failure Mode:** explain why the standard/simpler approach fails; and (3) **The Solution Chain:** describe the alternative architecture or implementation chain applied instead.
+If an AI agent or developer implements a non-standard technical workaround, bypasses a standard framework interface in favor of an abstract base class, or handles complex framework quirks (such as Dapper's async method constraints requiring a concrete base connection rather than an interface substitute), **an explicit multi-line comment using the `NOTE` format is mandatory**. The comment structure must clearly state:
+1. **The Limitation:** state clearly which framework, library, or platform constraint triggered the workaround (including exact exception messages if applicable);
+2. **The Failure Mode:** explain why the standard/simpler approach fails; and
+3. **The Solution Chain:** describe the alternative architecture or implementation chain applied instead.
+
+
 * **Reference Implementation Standard (Dapper Mocking):**
 When implementing complex or non-standard solutions, code must strictly adhere to verified structural templates. For unit-testing Dapper asynchronous data flows with mocking frameworks, the following implementation pattern is mandatory:
 
@@ -126,9 +183,8 @@ When implementing complex or non-standard solutions, code must strictly adhere t
 
 ---
 
-### 7. BDD Specifications and Execution Standards
+### 8. BDD Specifications and Execution Standards
 
 * **Executable Specifications via Reqnroll:** Business rules (such as discount calculations, promo code validations, and cart constraints) must be defined using Gherkin syntax (`.feature` files) and bound to backend execution via Reqnroll step definitions.
 * **Compilation & Test Discovery:** Feature files are compiled into executable xUnit tests at build time using `Reqnroll.Tools.MsBuild.Generation`, ensuring that specifications remain strictly synchronized with domain code behavior.
 
-```
