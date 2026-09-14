@@ -4,19 +4,19 @@
 > *Fast Loop: Red Test -> Green Code -> (Test Fail? -> Rollback) -> Refactor -> Auto-Commit.*  
 > *Feature Finalization: + Mutation Check (`run-tdd-cycle.cmd --full`) before the final Auto-Commit.*
 
-## 🎯 Manifesto & Core Principles: Structural Invariant Framework (SIF)
+## 🎯 Manifesto & Core Principles: Deterministic Execution Framework (DEF)
 
 Modern "Vibe Coding" and stateful chat-based AI development inevitably lead to **Loss of Intent**, **Context Drift**, and unmaintainable codebases. 
 
-`deterministic-ai-lab` validates a strict, deterministic software engineering methodology known as the **Structural Invariant Framework (SIF)**. Under SIF, the **LLM is not a partner in conversation, but a stateless code compilation unit**, and code validation is treated as **Software Metrology** — a branch of engineering dedicated to precise, repeatable, and objective measurement of software correctness.
+`deterministic-ai-lab` validates a strict software engineering methodology known as the **Deterministic Execution Framework (DEF)**. Under DEF, the **LLM is not a partner in conversation, but a stateless code compilation unit**, and code validation is treated as precise, repeatable, and objective measurement of software correctness.
 
-### Key Rules of SIF
+### Key Rules of DEF
 1. **Stateless AI Execution:** Zero persistent memory in chat sessions. State is stored solely in the Git repository (Code, Tests, Specs).
 2. **Human Owns the Red Phase:** LLMs are strictly forbidden from writing unit tests or business constraints on their own from raw natural language.
-3. **Executable Specs First (Specification Metrology):** Business invariants and domain logic must be formalized in Git (`docs/specs/*.feature`) and verified via automated Reqnroll BDD acceptance tests before feature finalization.
+3. **Executable Specs First:** Business invariants and domain logic must be formalized in Git (`docs/specs/*.feature`) and verified via automated Reqnroll BDD acceptance tests before feature finalization.
 4. **Binary Compiler Arbitration:** Code is accepted ONLY if `dotnet test` (covering both BDD Reqnroll specs and unit tests) and `npm run test:unit` (via Vitest for WebUI) return `PASS` (Green). Any compiler error or failing test leads to an immediate `git rollback`. Heavy E2E tests (Playwright) run only on Feature Finalization.
 5. **Human Owns the Refactor Decision:** The LLM may generate refactoring variants, but only the Human decides whether the code has genuinely improved. The automated test suite guarantees that observable behavior has not changed.
-6. **Mutation Guard & Metrology (Feature Finalization Only):** A green suite is necessary but not sufficient - a test can formally pass yet verify nothing (missing `Assert`, wrong condition). Software metrology is enforced by **Stryker.NET** (`dotnet stryker`), which deliberately mutates both `Domain` and `Application` code (`src/Domain/` and `src/Application/`) and re-runs the suite for each mutant. A surviving mutant is a bug your tests missed.
+6. **Mutation Guard (Feature Finalization Only):** A green suite is necessary but not sufficient - a test can formally pass yet verify nothing (missing `Assert`, wrong condition). Test suite resilience is verified by **Stryker.NET** (`dotnet stryker`), which deliberately mutates both `Domain` and `Application` code (`src/Domain/` and `src/Application/`) and re-runs the suite for each mutant. A surviving mutant is a bug your tests missed.
 7. **Fast Loop vs. Finalization:** The ordinary TDD fast loop is never blocked by mutants. Mutation checking runs only on feature finalization (`run-tdd-cycle.cmd --full`): a surviving mutant blocks the **Auto-Commit only** - never the code (no rollback, the implementation is correct).
 
 ## 🏗️ 3-Layer Architecture & BDD Integration
@@ -80,9 +80,9 @@ The standard TDD/BDD cycle. It is **never blocked** by mutants; test failures tr
 * The Auto-Commit is **blocked**.
 * The **Human** writes an additional Red test closing the blind spot (Human Owns the Red Phase); then the Fast Loop resumes.
 
-## 🧬 Mutation Agent & Software Metrology
+## 🧬 Mutation Agent & Test Resilience Verification
 
-In ordinary TDD a test can pass (Green) yet verify nothing - for example, a forgotten `Assert` or a wrong condition. The Mutation Agent closes that gap by running **Stryker.NET** (`dotnet stryker`), acting as a metrological standard to verify test resilience by deliberately corrupting both Domain and Application code (`src/Domain/` and `src/Application/`):
+In ordinary TDD a test can pass (Green) yet verify nothing - for example, a forgotten `Assert` or a wrong condition. The Mutation Agent closes that gap by running **Stryker.NET** (`dotnet stryker`), acting as a standard to verify test resilience by deliberately corrupting both Domain and Application code (`src/Domain/` and `src/Application/`):
 
 * arithmetic flips: `+` <-> `-`, `>` <-> `>=`
 * logical flips: `a != b` <-> `a == b`
@@ -105,4 +105,3 @@ The Mutation Agent runs on feature finalization only (`run-tdd-cycle.cmd --full`
 * **AI Engine:** Stateless API Payload (Claude / OpenAI / Local LLM)
 * **Control:** Windows CMD (run-tdd-cycle.cmd) / Git CLI
 
-```
