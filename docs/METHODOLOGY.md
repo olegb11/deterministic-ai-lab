@@ -99,7 +99,7 @@ The Mutation Agent runs on feature finalization only (`run-tdd-cycle.cmd --full`
 
 ## 🛠️ Stack
 
-* **Language:** C# / .NET 8+ & TypeScript (React)
+* **Language:** C# / .NET 10 & TypeScript (React)
 * **BDD Framework:** Reqnroll (Gherkin feature compilation via MSBuild)
 * **Testing Framework:** xUnit (Assert/Shouldly/FluentAssertions), Vitest & Playwright
 * **Mutation Testing:** Stryker.NET (`dotnet-stryker`)

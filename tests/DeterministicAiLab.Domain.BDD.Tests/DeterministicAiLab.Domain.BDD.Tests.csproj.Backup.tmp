@@ -19,18 +19,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\Domain\DeterministicAiLab.Domain\DeterministicAiLab.Domain.csproj" />
+	  <ProjectReference Include="..\..\src\Domain\DeterministicAiLab.Domain\DeterministicAiLab.Domain.csproj" />
 	</ItemGroup>
 
 
-	<ItemGroup>
-		<ReqnrollFeatureFiles Include="..\..\docs\specs\**\*.feature">
-			<Link>Features\%(RecursiveDir)%(Filename)%(Extension)</Link>
-		</ReqnrollFeatureFiles>
-	</ItemGroup>
+<ItemGroup>
+  <ReqnrollFeatureFiles Include="..\..\docs\specs\**\*.feature">
+    <Link>Features\%(RecursiveDir)%(Filename)%(Extension)</Link>
+  </ReqnrollFeatureFiles>
+</ItemGroup>
 
-	<PropertyGroup>
-		<ReqnrollUseIntermediateOutputPathForCodeBehind>true</ReqnrollUseIntermediateOutputPathForCodeBehind>
-	</PropertyGroup>
+<PropertyGroup>
+  <ReqnrollUseIntermediateOutputPathForCodeBehind>true</ReqnrollUseIntermediateOutputPathForCodeBehind>
+  <RunSettingsFilePath>C:\Projects\deterministic-ai-lab\tests\DeterministicAiLab.Domain.BDD.Tests\bin\Debug\net10.0\fine-code-coverage\coverage-tool-output\DeterministicAiLab.Domain.BDD.Tests-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
+</PropertyGroup>
 
 </Project>

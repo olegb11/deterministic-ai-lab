@@ -1,5 +1,5 @@
 ﻿# Architecture Requirements & Engineering Standards
-## Project: Deterministic AI Lab Monorepo (.NET 8 & React)
+## Project: Deterministic AI Lab Monorepo (.NET 10 & React)
 
 > **CRITICAL INSTRUCTION FOR AI AGENT:** 
 > Before generating or modifying any files, read the **Project Variable** below. You must dynamically replace the placeholder `{ProjectName}` with this actual name across **all** solution files, project folders, `.csproj` names, C# namespaces, class references, and extension methods. Do not hardcode the placeholder.
@@ -14,7 +14,7 @@ Development of a production-grade web application template with strict separatio
 ---
 
 ### 2. Tech Stack & Architecture
-* **Backend Platform:** .NET 8 (ASP.NET Core Web API)
+* **Backend Platform:** .NET 10 (ASP.NET Core Web API)
 * **Frontend Platform:** React + Vite + TypeScript
 * **Architectural Pattern:** Clean Architecture / CQRS (Command Query Responsibility Segregation)
 * **Mediator:** `MediatR`
