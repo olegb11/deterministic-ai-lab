@@ -2,6 +2,9 @@
 
 > **Goal:** Eliminate hallucinations, context drift, and non-deterministic behavior in AI-generated code via binary compiler arbitration (Exit Code 0) and Stryker mutation testing.
 
+> ⚠️ **Status: Work in Progress (Draft)**
+> This repository is currently in draft state and active development. Architecture, schema, and contracts are subject to breaking changes.
+
 ---
 
 ## 🎯 Key Principles
