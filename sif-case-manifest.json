@@ -1,0 +1,109 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "manifestVersion": "1.0.0",
+  "caseId": "CASE-DOTNET-BDD-STRYKER-001",
+  "createdUtc": "2026-09-15T09:00:00Z",
+  "status": "FROZEN",
+  "git": {
+    "branch": "feature/sif-governance-eval",
+    "tag": "sif-case-v1.0-frozen"
+  },
+  "context": {
+    "domain": "E-Commerce / Pricing & Discounts",
+    "targetFramework": "net10.0",
+    "language": "C# 12/13",
+    "testingFramework": "Reqnroll (Gherkin/BDD) + xUnit",
+    "mutationTool": "Stryker.NET"
+  },
+  "governedElements": [
+    {
+      "id": "ELEM-BDD-01",
+      "type": "Specification",
+      "format": "Gherkin",
+      "path": "tests/DeterministicAiLab.Domain.BDD.Tests/Features/shopping_cart_discounts.feature",
+      "description": "Gherkin specification for SUMMER2026 promo code eligibility and cart invariant rules."
+    },
+    {
+      "id": "ELEM-BIND-01",
+      "type": "TestBinding",
+      "format": "CSharpClass",
+      "path": "tests/DeterministicAiLab.Domain.BDD.Tests/Steps/DiscountPolicySteps.cs",
+      "description": "Reqnroll step definitions binding Gherkin scenarios to execution logic."
+    },
+    {
+      "id": "ELEM-DOM-01",
+      "type": "DomainModel",
+      "format": "CSharpClass",
+      "path": "src/Domain/DeterministicAiLab.Domain/Entities/DiscountPolicy.cs",
+      "description": "Core domain entity enforcing discount calculation and non-negative total invariants."
+    },
+    {
+      "id": "ELEM-MUT-01",
+      "type": "EvidenceReport",
+      "format": "StrykerJsonReport",
+      "path": "mutation-report.json",
+      "description": "Stryker.NET report capturing 3 active survived mutants (Mutant #4, #13, #17) for boundary conditions."
+    }
+  ],
+  "structuralDependencies": [
+    {
+      "source": "ELEM-BDD-01",
+      "target": "ELEM-BIND-01",
+      "relation": "SPECIFIES",
+      "cardinality": "OneToMany"
+    },
+    {
+      "source": "ELEM-BIND-01",
+      "target": "ELEM-DOM-01",
+      "relation": "VERIFIES_BEHAVIOR",
+      "cardinality": "ManyToMany"
+    },
+    {
+      "source": "ELEM-MUT-01",
+      "target": "ELEM-DOM-01",
+      "relation": "ASSURES_RESILIENCE",
+      "cardinality": "OneToOne"
+    }
+  ],
+  "activePressurePoints": {
+    "bddStatus": "PASS",
+    "mutationScore": 60.0,
+    "survivedMutants": [
+      {
+        "id": "13",
+        "mutatorName": "Equality mutation",
+        "replacement": "Subtotal >= 1000m",
+        "targetLocation": "DiscountPolicy.cs:Line 22"
+      },
+      {
+        "id": "4",
+        "mutatorName": "Equality mutation",
+        "replacement": "subtotal <= 0",
+        "targetLocation": "DiscountPolicy.cs:Line 11"
+      },
+      {
+        "id": "17",
+        "mutatorName": "Boolean mutation",
+        "replacement": "false",
+        "targetLocation": "DiscountPolicy.cs:Line 25"
+      }
+    ]
+  },
+  "adversarialStressScenarios": [
+    {
+      "scenarioId": "STRESS-01-MUTATION-SLIP",
+      "description": "Verify if SIF detects non-rigorous verification due to 3 survived mutants despite 100% green BDD tests.",
+      "expectedResult": "SIF must flag ELEM-DOM-01 as partially unverified or issue a warning on ELEM-MUT-01."
+    },
+    {
+      "scenarioId": "STRESS-02-BOUNDARY-SHIFT",
+      "description": "Shift threshold from > 1000 to >= 1000 in ELEM-BDD-01.",
+      "expectedResult": "SIF must propagate changes to ELEM-DOM-01 and invalidate existing ELEM-MUT-01 evidence."
+    },
+    {
+      "scenarioId": "STRESS-03-INVARIANT-CONFLICT",
+      "description": "Introduce conflicting rule where Clearance items give cashback but promo codes do not apply.",
+      "expectedResult": "SIF must detect specification collision or explicitly preserve an OPEN condition."
+    }
+  ]
+}
