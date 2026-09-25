@@ -1,40 +1,58 @@
-﻿namespace DeterministicAiLab.Domain.Entities;
+using System;
+using System.Collections.Generic;
 
-using ValueObjects;
-
-public class Cart
+namespace DeterministicAiLab.Domain.Entities
 {
-    private readonly List<CartItem> _items = new();
-    public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
-
-    public PromoCode? AppliedPromoCode { get; private set; }
-
-    public void AddItem(CartItem item)
+    public class Cart
     {
-        _items.Add(item);
-    }
+        public Guid Id { get; }
+        public PromoCode? AppliedPromoCode { get; private set; }
+        public DateTimeOffset CreatedAt { get; }
 
-    public void ApplyPromoCode(PromoCode promoCode, DateTimeOffset currentDate)
-    {
-        if (!promoCode.IsValidAt(currentDate))
-            throw new InvalidOperationException("Cannot apply invalid or expired promo code");
+        public IReadOnlyList<CartItem> Items => _items.AsReadOnly();
+        private readonly List<CartItem> _items = new();
 
-        AppliedPromoCode = promoCode;
-    }
-
-    public decimal CalculateTotal()
-    {
-        if (_items.Count == 0)
-            return 0.0m;
-
-        decimal subtotal = _items.Sum(i => i.Total);
-
-        if (AppliedPromoCode != null)
+        public Cart(Guid id, PromoCode? appliedPromoCode, DateTimeOffset createdAt)
         {
-            decimal discountFactor = (100 - AppliedPromoCode.DiscountPercentage) / 100m;
-            subtotal *= discountFactor;
+            Id = id;
+            AppliedPromoCode = appliedPromoCode;
+            CreatedAt = createdAt;
         }
 
-        return Math.Round(subtotal, 2);
+        public void ApplyPromoCode(PromoCode? promo)
+        {
+            if (promo == null)
+            {
+                AppliedPromoCode = null;
+                return;
+            }
+
+            if (!promo.IsValid(DateTimeOffset.UtcNow)) throw new ArgumentException("Cannot apply invalid or expired promo code", nameof(promo));
+            AppliedPromoCode = promo;
+        }
+
+        public decimal Total(PromoCode? promo = null, DateTimeOffset? now = null)
+        {
+            decimal sum = 0m;
+            foreach (var item in _items)
+            {
+                sum += item.GetTotal();
+            }
+
+            var current = now ?? DateTimeOffset.UtcNow;
+            if (promo != null && promo.IsValid(current))
+            {
+                sum = sum * (1m - (promo.DiscountPercentage / 100m));
+            }
+
+            return sum;
+        }
+
+        public void AddItem(CartItem item)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (item.CartId != Id) throw new ArgumentException("cart item belongs to a different cart", nameof(item));
+            _items.Add(item);
+        }
     }
 }

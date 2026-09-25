@@ -22,4 +22,4 @@ Feature: Shopping Cart Promo Code Policy
     Given a shopping cart
     And an expired promo code "OLDD10" with 20% discount
     When I try to apply the promo code to the cart
-    Then the system should reject it with the error "Cannot apply invalid or expired promo code"
+    Then applying the promo code should be rejected with the error "Cannot apply invalid or expired promo code"

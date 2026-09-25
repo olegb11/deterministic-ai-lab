@@ -1,24 +1,29 @@
-﻿namespace DeterministicAiLab.Domain.ValueObjects;
+using System;
 
-public class PromoCode
+namespace DeterministicAiLab.Domain.Entities
 {
-    public string Code { get; }
-    public decimal DiscountPercentage { get; }
-    public DateTimeOffset ExpirationDate { get; }
-
-    public PromoCode(string code, decimal discountPercentage, DateTimeOffset expirationDate)
+    public class PromoCode
     {
-        if (string.IsNullOrWhiteSpace(code))
-            throw new ArgumentException("Promo code cannot be empty");
-        if (code.Length != 6)
-            throw new ArgumentException("Promo code must be 6 characters");
-        if (discountPercentage < 1 || discountPercentage > 100)
-            throw new ArgumentException("Discount percentage must be between 1 and 100");
+        public string Code { get; }
+        public int DiscountPercentage { get; }
+        public DateTimeOffset ExpirationDate { get; }
+        public DateTimeOffset CreatedAt { get; }
 
-        Code = code;
-        DiscountPercentage = discountPercentage;
-        ExpirationDate = expirationDate;
+        public PromoCode(string code, int discountPercentage, DateTimeOffset expirationDate, DateTimeOffset createdAt)
+        {
+            if (string.IsNullOrWhiteSpace(code)) throw new ArgumentException("Promo code cannot be empty", nameof(code));
+            if (code.Trim().Length != 6) throw new ArgumentException("Promo code must be 6 characters", nameof(code));
+            if (discountPercentage < 1 || discountPercentage > 100) throw new ArgumentOutOfRangeException(nameof(discountPercentage), "Discount percentage must be between 1 and 100");
+
+            Code = code;
+            DiscountPercentage = discountPercentage;
+            ExpirationDate = expirationDate;
+            CreatedAt = createdAt;
+        }
+
+        public bool IsValid(DateTimeOffset now)
+        {
+            return ExpirationDate >= now;
+        }
     }
-
-    public bool IsValidAt(DateTimeOffset currentDate) => currentDate <= ExpirationDate;
 }

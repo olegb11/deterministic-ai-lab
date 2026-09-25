@@ -187,4 +187,3 @@ When implementing complex or non-standard solutions, code must strictly adhere t
 
 * **Executable Specifications via Reqnroll:** Business rules (such as discount calculations, promo code validations, and cart constraints) must be defined using Gherkin syntax (`.feature` files) and bound to backend execution via Reqnroll step definitions.
 * **Compilation & Test Discovery:** Feature files are compiled into executable xUnit tests at build time using `Reqnroll.Tools.MsBuild.Generation`, ensuring that specifications remain strictly synchronized with domain code behavior.
-
