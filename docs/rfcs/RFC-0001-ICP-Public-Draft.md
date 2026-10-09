@@ -123,7 +123,7 @@ Examples:
 
 Purpose:
 
-Bridge business intent and implementation realities without polluting business specifications.
+Bridge business intent and implementation realities without polluting business specifications. **Compliance with these constraints is enforced via automated static analysis and architectural policies executed prior to behavioral verification.**
 
 ### Layer 2: Red Tests
 
@@ -202,23 +202,14 @@ A surviving mutant is treated as potential Intent Leakage until proven otherwise
 While the Intent Compilation Pipeline (ICP) provides strict determinism and eliminates Intent Leakage, it introduces specific engineering trade-offs:
 
 1. **High Upfront Cognitive Load & Cost**  
-     
-   - *Limitation:* Writing formal Gherkin specifications (Layer 1), defining technical constraints (Layer 1.5), and authoring red tests (Layer 2\) *before* implementation requires significantly more upfront effort than exploratory coding.  
-   - *Justification:* ICP is designed for production-ready, mission-critical systems where long-term maintainability, zero-trust AI verification, and predictability outweigh the speed of initial prototyping. For throwaway MVPs, ICP is intentionally over-engineered.
-
-   
-
+- Limitation: Writing formal Gherkin specifications (Layer 1), defining technical constraints (Layer 1.5), and authoring red tests (Layer 2\) before implementation requires significantly more upfront effort than exploratory coding.  
+- Justification: ICP is designed for production-ready, mission-critical systems where long-term maintainability, zero-trust AI verification, and predictability outweigh the speed of initial prototyping. For throwaway MVPs, ICP is intentionally over-engineered.  
 2. **The "Chicken-and-Egg" Design Dilemma**  
-     
-   - *Limitation:* To write tests and specifications, humans must define interfaces and data structures beforehand, which can restrict AI's ability to introduce emergent design solutions.  
-   - *Mitigation:* Human engineers must specify *what* (behavioral contracts and invariants) rather than *how* (internal implementation details). AI retains full freedom within Layer 3 to choose internal algorithms, design patterns, and structural refactoring as long as all gates pass.
-
-   
-
+- Limitation: To write tests and specifications, humans must define interfaces and data structures beforehand, which can restrict AI's ability to introduce emergent design solutions.  
+- Mitigation: Human engineers must specify what (behavioral contracts and invariants) rather than how (internal implementation details). AI retains full freedom within Layer 3 to choose internal algorithms, design patterns, and structural refactoring as long as all gates pass.  
 3. **Maintenance Overhead of Specifications & Mutants**  
-     
-   - *Limitation:* Changes in business requirements require synchronized updates across specifications, test suites, and mutation testing configurations.  
-   - *Justification:* This friction is a feature, not a bug. It forces explicit synchronization and prevents undocumented drift between what the system does and what the business intends.
+- Limitation: Changes in business requirements require synchronized updates across specifications, test suites, and mutation testing configurations.  
+- Justification: This friction is a feature, not a bug. It forces explicit synchronization and prevents undocumented drift between what the system does and what the business intends.
 
 ## Definition of Done
 
