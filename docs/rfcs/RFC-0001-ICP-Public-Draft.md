@@ -58,23 +58,7 @@ The Intent Compilation Pipeline aims to establish:
 
 Software development is treated as a compilation process:
 
-Business Intent
-
-    ↓
-
-Executable Specification
-
-    ↓
-
-Red Tests
-
-    ↓
-
-Source Code
-
-    ↓
-
-Running System
+Business Intent ↓ Executable Specification ↓ Red Tests ↓ Source Code ↓ Running System
 
 Each stage is a more formal representation of the previous stage.
 
@@ -122,13 +106,7 @@ Technologies:
 
 Example:
 
-Scenario: Valid promo code
-
-  Given cart total is 1000
-
-  When customer enters promo code "SAVE10"
-
-  Then total should be 900
+Scenario: Valid promo code Given cart total is 1000 When customer enters promo code "SAVE10" Then total should be 900
 
 ### Layer 1.5: Technical Constraints
 
@@ -170,19 +148,7 @@ AI may propose implementations and design alternatives but holds no final design
 
 ## Verification & Quality Gates
 
-AI Code Generation
-
-        ↓
-
-Gate 1: Correctness
-
-        ↓
-
-Gate 2: Resilience
-
-        ↓
-
-Definition of Done
+AI Code Generation ↓ Gate 1: Correctness ↓ Gate 2: Resilience ↓ Definition of Done
 
 ### Gate 1: Correctness
 
@@ -208,7 +174,7 @@ Criterion:
 
 100% of admitted non-equivalent mutants are killed.
 
-*Pragmatic Note on Equivalent Mutants:* Identifying equivalent mutants manually is labor-intensive. To mitigate this cost, AI assistants may be delegated the primary analysis and classification of surviving mutants, generating a candidate list of equivalent mutants. However, final validation and formal admission remain strictly under Human Engineer authority (Axiom 2).
+Pragmatic Note on Equivalent Mutants: Identifying equivalent mutants manually is labor-intensive. To mitigate this cost, AI assistants may be delegated the primary analysis and classification of surviving mutants, generating a candidate list of equivalent mutants. However, final validation and formal admission remain strictly under Human Engineer authority (Axiom 2).
 
 ## Scientific Interpretation
 
@@ -237,22 +203,22 @@ While the Intent Compilation Pipeline (ICP) provides strict determinism and elim
 
 1. **High Upfront Cognitive Load & Cost**  
      
-   * *Limitation:* Writing formal Gherkin specifications (Layer 1), defining technical constraints (Layer 1.5), and authoring red tests (Layer 2\) *before* implementation requires significantly more upfront effort than exploratory coding.  
-   * *Justification:* ICP is designed for production-ready, mission-critical systems where long-term maintainability, zero-trust AI verification, and predictability outweigh the speed of initial prototyping. For throwaway MVPs, ICP is intentionally over-engineered.
+   - *Limitation:* Writing formal Gherkin specifications (Layer 1), defining technical constraints (Layer 1.5), and authoring red tests (Layer 2\) *before* implementation requires significantly more upfront effort than exploratory coding.  
+   - *Justification:* ICP is designed for production-ready, mission-critical systems where long-term maintainability, zero-trust AI verification, and predictability outweigh the speed of initial prototyping. For throwaway MVPs, ICP is intentionally over-engineered.
 
    
 
 2. **The "Chicken-and-Egg" Design Dilemma**  
      
-   * *Limitation:* To write tests and specifications, humans must define interfaces and data structures beforehand, which can restrict AI's ability to introduce emergent design solutions.  
-   * *Mitigation:* Human engineers must specify *what* (behavioral contracts and invariants) rather than *how* (internal implementation details). AI retains full freedom within Layer 3 to choose internal algorithms, design patterns, and structural refactoring as long as all gates pass.
+   - *Limitation:* To write tests and specifications, humans must define interfaces and data structures beforehand, which can restrict AI's ability to introduce emergent design solutions.  
+   - *Mitigation:* Human engineers must specify *what* (behavioral contracts and invariants) rather than *how* (internal implementation details). AI retains full freedom within Layer 3 to choose internal algorithms, design patterns, and structural refactoring as long as all gates pass.
 
    
 
 3. **Maintenance Overhead of Specifications & Mutants**  
      
-   * *Limitation:* Changes in business requirements require synchronized updates across specifications, test suites, and mutation testing configurations.  
-   * *Justification:* This friction is a feature, not a bug. It forces explicit synchronization and prevents undocumented drift between what the system does and what the business intends.
+   - *Limitation:* Changes in business requirements require synchronized updates across specifications, test suites, and mutation testing configurations.  
+   - *Justification:* This friction is a feature, not a bug. It forces explicit synchronization and prevents undocumented drift between what the system does and what the business intends.
 
 ## Definition of Done
 
