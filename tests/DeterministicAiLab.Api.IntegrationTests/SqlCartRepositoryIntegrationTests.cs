@@ -2,19 +2,28 @@
 using DeterministicAiLab.Domain.ValueObjects;
 using DeterministicAiLab.Infrastructure.Persistence;
 using DeterministicAiLab.Infrastructure.Repositories;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace DeterministicAiLab.Infrastructure.IntegrationTests;
 
 public class SqlCartRepositoryIntegrationTests
 {
-    // Local PostgreSQL connection string (adjust credentials/database name to match your local environment)
     private readonly IDbConnectionFactory _connectionFactory;
     private readonly SqlCartRepository _repository;
 
     public SqlCartRepositoryIntegrationTests()
     {
-        var connectionString = "Host=localhost;Port=5432;Database=deterministic_ai_lab;Username=postgres;Password=1111";
+        // Load configuration from appsettings.json
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+                               ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is missing in configuration.");
+
         _connectionFactory = new PostgresConnectionFactory(connectionString);
         _repository = new SqlCartRepository(_connectionFactory);
 
@@ -24,14 +33,7 @@ public class SqlCartRepositoryIntegrationTests
 
     private void InitializeDatabaseSchema()
     {
-        // Resolve path to database/schema.sql relative to output directory or source root
         var schemaPath = Path.Combine(AppContext.BaseDirectory, "database", "schema.sql");
-
-        if (!File.Exists(schemaPath))
-        {
-            // Fallback path traversal if executed directly from the test project bin directory
-            schemaPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../database/schema.sql"));
-        }
 
         if (!File.Exists(schemaPath))
         {
@@ -75,7 +77,7 @@ public class SqlCartRepositoryIntegrationTests
 
         var cartId = Guid.NewGuid();
 
-        // Instantiate new cart and add item matching CartItem signature: (productId, quantity, unitPrice)[cite: 2]
+        // Instantiate new cart and add item matching CartItem signature
         var cart = new Cart(cartId);
         cart.AddItem(new CartItem("prod-1", 2, new Money(50.00m)));
 
