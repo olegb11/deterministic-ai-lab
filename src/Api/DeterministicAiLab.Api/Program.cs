@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add infrastructure, application, and authentication services
 builder.Services
-    .AddInfrastructure()
+    .AddInfrastructure(builder.Configuration)
     .AddApplicationServices()
     .AddAuthenticationAndAuthorization()
     .AddSwaggerDocumentation();

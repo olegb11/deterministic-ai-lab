@@ -1,130 +1,136 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using DeterministicAiLab.Application.Carts;
 using DeterministicAiLab.Domain.Entities;
 using DeterministicAiLab.Domain.ValueObjects;
+using DeterministicAiLab.Infrastructure.Persistence;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace DeterministicAiLab.Infrastructure.Persistence.Carts;
+namespace DeterministicAiLab.Infrastructure.Repositories;
 
-/// <summary>
-/// PostgreSQL implementation of ICartRepository using Dapper.
-/// </summary>
 public class SqlCartRepository : ICartRepository
 {
-    private readonly IDbConnection _connection;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public SqlCartRepository(IDbConnection connection)
+    public SqlCartRepository(IDbConnectionFactory connectionFactory)
     {
-        _connection = connection;
+        _connectionFactory = connectionFactory;
     }
 
     public async Task<Cart?> GetByIdAsync(Guid cartId, CancellationToken cancellationToken = default)
     {
-        const string sql = @"
-            SELECT cart_id AS CartId, applied_promo_code AS AppliedPromoCodeText 
-            FROM carts 
-            WHERE cart_id = @CartId;
+        using var connection = _connectionFactory.CreateConnection();
 
+        // Flat multi-query package with explicit column aliases for proper Dapper mapping matching schema.sql
+        const string sql = @"
+            -- 1. Check cart existence
+            SELECT cart_id FROM carts WHERE cart_id = @CartId;
+            
+            -- 2. Get cart items with explicit aliases for Dapper property matching
             SELECT product_id AS ProductId, quantity AS Quantity, unit_price AS UnitPrice 
             FROM cart_items 
             WHERE cart_id = @CartId;
-        ";
+
+            -- 3. Get applied promo code details with explicit aliases for Dapper property matching
+            SELECT p.code AS Code, 
+                   p.discount_percentage AS DiscountPercentage, 
+                   p.expiration_date AS ExpirationDate, 
+                   p.is_active AS IsActive
+            FROM carts c
+            INNER JOIN promo_codes p ON c.applied_promo_code = p.code
+            WHERE c.cart_id = @CartId;";
 
         var command = new CommandDefinition(sql, new { CartId = cartId }, cancellationToken: cancellationToken);
+        using var multi = await connection.QueryMultipleAsync(command);
 
-        using var multi = await _connection.QueryMultipleAsync(command);
-
-        var cartDto = await multi.ReadFirstOrDefaultAsync<CartDto>();
-        if (cartDto == null)
+        var existingCartId = await multi.ReadSingleOrDefaultAsync<Guid?>();
+        if (!existingCartId.HasValue)
         {
             return null;
         }
 
-        var itemDtos = (await multi.ReadAsync<CartItemDto>()).AsList();
+        var itemDtos = await multi.ReadAsync<CartItemDto>();
+        var items = itemDtos.Select(dto => new CartItem(
+            dto.ProductId,
+            dto.Quantity,
+            new Money(dto.UnitPrice)
+        ));
 
-        // Reconstruct domain aggregate
-        var cart = new Cart(cartDto.CartId);
-
-        foreach (var itemDto in itemDtos)
+        var promoCodeDto = await multi.ReadSingleOrDefaultAsync<PromoCodeDto>();
+        PromoCode? promoCode = null;
+        if (promoCodeDto != null)
         {
-            var cartItem = new CartItem(
-                itemDto.ProductId,
-                itemDto.Quantity,
-                new Money(itemDto.UnitPrice)
+            promoCode = new PromoCode(
+                new PromoCodeText(promoCodeDto.Code),
+                promoCodeDto.DiscountPercentage,
+                promoCodeDto.ExpirationDate,
+                promoCodeDto.IsActive
             );
-            cart.AddItem(cartItem);
         }
 
-        // Note: If an applied promo code text exists, we can attach/reapply it or handle it via domain logic.
-        // For now, if the DTO has a promo code string, we restore it.
-
-        return cart;
+        return Cart.Load(cartId, items, promoCode);
     }
 
     public async Task SaveAsync(Cart cart, CancellationToken cancellationToken = default)
     {
-        // Ensure connection is open for transaction management
-        if (_connection.State != ConnectionState.Open)
-        {
-            if (_connection is IDbConnection conn)
-            {
-                // If connection needs opening (handled usually by DI scope, but good to ensure)
-            }
-        }
-
-        // Using transaction to ensure atomic save of cart header and its items
-        using var transaction = _connection.BeginTransaction();
+        using var connection = _connectionFactory.CreateConnection();
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
 
         try
         {
+            // 1. Upsert cart header incorporating applied_promo_code and mandatory updated_at
             const string upsertCartSql = @"
                 INSERT INTO carts (cart_id, applied_promo_code, updated_at)
                 VALUES (@CartId, @AppliedPromoCode, @UpdatedAt)
                 ON CONFLICT (cart_id) 
-                DO UPDATE SET 
-                    applied_promo_code = EXCLUDED.applied_promo_code,
-                    updated_at = EXCLUDED.updated_at;
-            ";
+                DO UPDATE SET applied_promo_code = EXCLUDED.applied_promo_code, updated_at = EXCLUDED.updated_at;";
 
-            string? promoCodeValue = cart.AppliedPromoCode?.Code.Value;
-
-            await _connection.ExecuteAsync(
-                new CommandDefinition(upsertCartSql, new
+            var upsertCommand = new CommandDefinition(
+                upsertCartSql,
+                new
                 {
                     CartId = cart.CartId,
-                    AppliedPromoCode = promoCodeValue,
+                    AppliedPromoCode = cart.AppliedPromoCode?.Code.Value,
                     UpdatedAt = DateTime.UtcNow
-                }, transaction, cancellationToken: cancellationToken)
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken
             );
+            await connection.ExecuteAsync(upsertCommand);
 
-            // Clear existing items for this cart to handle updates cleanly (replace strategy)
+            // 2. Synchronize cart items (clear and re-insert strategy within transaction)
             const string deleteItemsSql = "DELETE FROM cart_items WHERE cart_id = @CartId;";
-            await _connection.ExecuteAsync(
-                new CommandDefinition(deleteItemsSql, new { CartId = cart.CartId }, transaction, cancellationToken: cancellationToken)
+            var deleteCommand = new CommandDefinition(
+                deleteItemsSql,
+                new { CartId = cart.CartId },
+                transaction: transaction,
+                cancellationToken: cancellationToken
             );
+            await connection.ExecuteAsync(deleteCommand);
 
-            // Insert current items
             const string insertItemSql = @"
-                INSERT INTO cart_items (cart_id, product_id, quantity, unit_price)
-                VALUES (@CartId, @ProductId, @Quantity, @UnitPrice);
-            ";
+                INSERT INTO cart_items (cart_id, product_id, quantity, unit_price) 
+                VALUES (@CartId, @ProductId, @Quantity, @UnitPrice);";
 
             foreach (var item in cart.Items)
             {
-                await _connection.ExecuteAsync(
-                    new CommandDefinition(insertItemSql, new
+                var insertCommand = new CommandDefinition(
+                    insertItemSql,
+                    new
                     {
                         CartId = cart.CartId,
                         ProductId = item.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = item.UnitPrice.Amount
-                    }, transaction, cancellationToken: cancellationToken)
+                    },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken
                 );
+                await connection.ExecuteAsync(insertCommand);
             }
 
             transaction.Commit();
@@ -136,7 +142,20 @@ public class SqlCartRepository : ICartRepository
         }
     }
 
-    private sealed record CartDto(Guid CartId, string? AppliedPromoCodeText);
+    #region Internal DTOs for Database Mapping
+    private class CartItemDto
+    {
+        public string ProductId { get; set; } = default!;
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; } // Matches unit_price column in schema.sql
+    }
 
-    private sealed record CartItemDto(string ProductId, int Quantity, decimal UnitPrice);
+    private class PromoCodeDto
+    {
+        public string Code { get; set; } = default!;
+        public decimal DiscountPercentage { get; set; }
+        public DateTime ExpirationDate { get; set; }
+        public bool IsActive { get; set; }
+    }
+    #endregion
 }

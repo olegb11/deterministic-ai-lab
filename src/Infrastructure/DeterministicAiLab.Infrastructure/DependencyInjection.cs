@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using DeterministicAiLab.Application.Carts;
 using DeterministicAiLab.Infrastructure.Persistence.Carts;
+using DeterministicAiLab.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 

@@ -1,3 +1,6 @@
+using DeterministicAiLab.Application.Carts;
+using DeterministicAiLab.Infrastructure.Persistence;
+using DeterministicAiLab.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DeterministicAiLab.Api.Extensions;
@@ -11,10 +14,16 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // TODO: Will be used for registering Dapper IDbConnection, IUserContext, etc.
-        return services;
+        // 1. Register connection factory as Singleton (thread-safe and lives for the application lifetime)
+        services.AddSingleton<IDbConnectionFactory>(_ =>
+            new PostgresConnectionFactory(
+                configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.")));
+
+        // 2. Register repositories with Scoped lifetime (standard for database work in web apps)
+        services.AddScoped<ICartRepository, SqlCartRepository>(); return services;
     }
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
