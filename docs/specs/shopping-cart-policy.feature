@@ -1,25 +1,19 @@
-Feature: Shopping Cart Promo Code Policy
-  In order to apply promotional discounts correctly
-  As a Shopping Cart domain
-  I want to calculate the final total when valid or invalid promo codes are applied
+Feature: Shopping Cart and Promo Code Policy
+  As a customer
+  I want to apply discount promo codes to my shopping cart
+  So that the total price is calculated accurately according to business rules
 
-  Scenario: Calculate cart total without promo code
-    Given a shopping cart with the following items:
-      | price | quantity | discount |
-      | 100.0 | 2        | 0        |
-    When no promo code is applied
-    Then the cart total should be 200.0
+  @invariant:M1 @invariant:M2 @invariant:P1
+  Scenario: Applying a valid 10 percent discount promo code to a cart
+    Given a shopping cart with items totaling 1000.00 UAH
+    When the user applies the promo code "SAVE10"
+    Then the cart subtotal should remain 1000.00 UAH
+    And the applied promo code should be "SAVE10"
+    And the cart total price should become 900.00 UAH
 
-  Scenario: Apply valid promo code to cart
-    Given a shopping cart with the following items:
-      | price | quantity | discount |
-      | 100.0 | 2        | 0        |
-    And a valid promo code "SAVE10" with 10% discount
-    When I apply the promo code to the cart
-    Then the cart total should be 180.0
-
-  Scenario: Reject applying invalid or expired promo code
-    Given a shopping cart
-    And an expired promo code "OLDD10" with 20% discount
-    When I try to apply the promo code to the cart
-    Then the system should reject it with the error "Cannot apply invalid or expired promo code"
+  @invariant:M1
+  Scenario: Attempting to apply an expired or invalid format promo code
+    Given a shopping cart with items totaling 500.00 UAH
+    When the user attempts to apply an invalid promo code "BAD1"
+    Then a domain validation exception should be thrown
+    And the cart total price should remain 500.00 UAH

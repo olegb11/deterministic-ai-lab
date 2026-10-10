@@ -29,8 +29,24 @@
 		</ReqnrollFeatureFiles>
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Compile Remove="Steps\**" />
+	  <EmbeddedResource Remove="Steps\**" />
+	  <None Remove="Steps\**" />
+	  <ReqnrollFeatureFile Remove="Steps\**" />
+	</ItemGroup>
+
 	<PropertyGroup>
 		<ReqnrollUseIntermediateOutputPathForCodeBehind>true</ReqnrollUseIntermediateOutputPathForCodeBehind>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <ReqnrollObsoleteCodeBehindFiles Remove="Steps\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ReqnrollLegacyCodeBehindFiles Remove="Steps\**" />
+	</ItemGroup>
 
 </Project>

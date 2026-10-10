@@ -1,40 +1,59 @@
-﻿namespace DeterministicAiLab.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DeterministicAiLab.Domain.ValueObjects;
 
-using ValueObjects;
+namespace DeterministicAiLab.Domain.Entities;
 
+/// <summary>
+/// Represents the Shopping Cart aggregate root, managing items and promo code applications.
+/// </summary>
 public class Cart
 {
     private readonly List<CartItem> _items = new();
+
+    public Guid CartId { get; }
     public IReadOnlyCollection<CartItem> Items => _items.AsReadOnly();
 
-    public PromoCode? AppliedPromoCode { get; private set; }
+    public PromoCodeText? AppliedPromoCode { get; private set; }
+    private decimal PromoCodeDiscountPercentage { get; set; }
+
+    public Money Subtotal => _items.Count == 0 ? Money.Zero : new Money(_items.Sum(i => i.Total.Amount));
+
+    public Money Total
+    {
+        get
+        {
+            var subtotalAmount = Subtotal.Amount;
+            if (PromoCodeDiscountPercentage <= 0)
+            {
+                return Subtotal;
+            }
+
+            var discountAmount = subtotalAmount * (PromoCodeDiscountPercentage / 100m);
+            var totalAmount = subtotalAmount - discountAmount;
+            return new Money(totalAmount < 0 ? 0m : totalAmount);
+        }
+    }
+
+    public Cart(Guid cartId)
+    {
+        CartId = cartId;
+    }
 
     public void AddItem(CartItem item)
     {
         _items.Add(item);
     }
 
-    public void ApplyPromoCode(PromoCode promoCode, DateTimeOffset currentDate)
+    public void ApplyPromoCode(PromoCode promoCode)
     {
-        if (!promoCode.IsValidAt(currentDate))
-            throw new InvalidOperationException("Cannot apply invalid or expired promo code");
-
-        AppliedPromoCode = promoCode;
-    }
-
-    public decimal CalculateTotal()
-    {
-        if (_items.Count == 0)
-            return 0.0m;
-
-        decimal subtotal = _items.Sum(i => i.Total);
-
-        if (AppliedPromoCode != null)
+        if (!promoCode.IsValid(DateTime.UtcNow))
         {
-            decimal discountFactor = (100 - AppliedPromoCode.DiscountPercentage) / 100m;
-            subtotal *= discountFactor;
+            throw new ArgumentException("Promo code is expired or inactive.", nameof(promoCode));
         }
 
-        return Math.Round(subtotal, 2);
+        AppliedPromoCode = promoCode.Code;
+        PromoCodeDiscountPercentage = promoCode.DiscountPercentage;
     }
 }

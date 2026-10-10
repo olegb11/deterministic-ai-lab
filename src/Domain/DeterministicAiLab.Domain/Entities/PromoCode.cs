@@ -1,24 +1,34 @@
-﻿namespace DeterministicAiLab.Domain.ValueObjects;
+﻿using System;
+using DeterministicAiLab.Domain.ValueObjects;
 
+namespace DeterministicAiLab.Domain.Entities;
+
+/// <summary>
+/// Represents a discount promo code entity applied to shopping carts.
+/// Invariant PC1: Discount percentage must be between 0 and 100.
+/// </summary>
 public class PromoCode
 {
-    public string Code { get; }
+    public PromoCodeText Code { get; }
     public decimal DiscountPercentage { get; }
-    public DateTimeOffset ExpirationDate { get; }
+    public DateTime ExpirationDate { get; }
+    public bool IsActive { get; }
 
-    public PromoCode(string code, decimal discountPercentage, DateTimeOffset expirationDate)
+    public PromoCode(PromoCodeText code, decimal discountPercentage, DateTime expirationDate, bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(code))
-            throw new ArgumentException("Promo code cannot be empty");
-        if (code.Length != 6)
-            throw new ArgumentException("Promo code must be 6 characters");
-        if (discountPercentage < 1 || discountPercentage > 100)
-            throw new ArgumentException("Discount percentage must be between 1 and 100");
+        if (discountPercentage < 0 || discountPercentage > 100)
+        {
+            throw new ArgumentException("Discount percentage must be between 0 and 100.", nameof(discountPercentage));
+        }
 
         Code = code;
         DiscountPercentage = discountPercentage;
         ExpirationDate = expirationDate;
+        IsActive = isActive;
     }
 
-    public bool IsValidAt(DateTimeOffset currentDate) => currentDate <= ExpirationDate;
+    public bool IsValid(DateTime currentUtcDateTime)
+    {
+        return IsActive && currentUtcDateTime <= ExpirationDate;
+    }
 }
