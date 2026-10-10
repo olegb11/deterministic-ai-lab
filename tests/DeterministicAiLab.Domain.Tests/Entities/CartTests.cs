@@ -52,7 +52,7 @@ public class CartTests
         cart.ApplyPromoCode(promoCode);
 
         // Assert
-        cart.AppliedPromoCode.Value.Should().Be(new PromoCodeText("SAVE10"));
+        cart.AppliedPromoCode.Should().Be(new PromoCodeText("SAVE10"));
         cart.Subtotal.Amount.Should().Be(1000.00m);
         cart.Total.Amount.Should().Be(900.00m); // 10% discount applied
     }

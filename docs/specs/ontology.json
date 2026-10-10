@@ -1,0 +1,61 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "namespace": "urn:deterministic-ai-lab:ontology",
+  "description": "Domain terminological ontology for BDD scenario validation and semantic grounding.",
+  "terms": [
+    {
+      "uri": "urn:deterministic-ai-lab:ontology:shopping-cart",
+      "name": "ShoppingCart",
+      "synonyms": ["Shopping Cart", "Cart"],
+      "category": "AggregateRoot",
+      "description": "Represents a customer's shopping cart containing line items and an optional applied promo code.",
+      "relationships": {
+        "contains": "urn:deterministic-ai-lab:ontology:cart-item",
+        "applies": "urn:deterministic-ai-lab:ontology:promo-code"
+      }
+    },
+    {
+      "uri": "urn:deterministic-ai-lab:ontology:promo-code",
+      "name": "PromoCode",
+      "synonyms": ["Promo Code"],
+      "category": "Entity",
+      "description": "A marketing token that grants a discount when applied to a valid cart prior to its expiration.",
+      "relationships": {
+        "grants": "urn:deterministic-ai-lab:ontology:discount",
+        "hasState": "urn:deterministic-ai-lab:ontology:expired"
+      }
+    },
+    {
+      "uri": "urn:deterministic-ai-lab:ontology:expired",
+      "name": "Expired",
+      "synonyms": [],
+      "category": "State",
+      "description": "A temporal state condition indicating that current timestamp exceeds expiration date.",
+      "relationships": {}
+    },
+    {
+      "uri": "urn:deterministic-ai-lab:ontology:discount",
+      "name": "Discount",
+      "synonyms": [],
+      "category": "ValueObject",
+      "description": "The percentage or monetary reduction value associated with an active promo code.",
+      "relationships": {}
+    },
+    {
+      "uri": "urn:deterministic-ai-lab:ontology:uah",
+      "name": "UAH",
+      "synonyms": [],
+      "category": "ValueObject",
+      "description": "Ukrainian Hryvnia currency unit for monetary values.",
+      "relationships": {}
+    },
+    {
+      "uri": "urn:deterministic-ai-lab:ontology:policy",
+      "name": "Policy",
+      "synonyms": [],
+      "category": "Rule",
+      "description": "Business rules governing cart operations and discount applications.",
+      "relationships": {}
+    }
+  ]
+}

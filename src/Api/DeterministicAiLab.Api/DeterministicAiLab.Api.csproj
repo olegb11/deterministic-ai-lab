@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Application\DeterministicAiLab.Application\DeterministicAiLab.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\DeterministicAiLab.Infrastructure\DeterministicAiLab.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
