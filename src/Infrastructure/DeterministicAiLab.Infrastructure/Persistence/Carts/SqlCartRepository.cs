@@ -91,7 +91,7 @@ public class SqlCartRepository : ICartRepository
                     updated_at = EXCLUDED.updated_at;
             ";
 
-            string? promoCodeValue = cart.AppliedPromoCode?.Value;
+            string? promoCodeValue = cart.AppliedPromoCode?.Code.Value;
 
             await _connection.ExecuteAsync(
                 new CommandDefinition(upsertCartSql, new

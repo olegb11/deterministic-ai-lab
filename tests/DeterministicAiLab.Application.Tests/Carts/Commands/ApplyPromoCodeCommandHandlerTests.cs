@@ -46,7 +46,8 @@ public class ApplyPromoCodeCommandHandlerTests
 
         // Assert
         cart.AppliedPromoCode.Should().NotBeNull();
-        cart.AppliedPromoCode!.Value.Value.Should().Be("SAVE10");
+        var appliedPromoCode = cart.AppliedPromoCode;
+        appliedPromoCode.Code.Value.Should().Be("SAVE10");
 
         await _cartRepositoryMock.Received(1).SaveAsync(cart, Arg.Any<CancellationToken>());
     }

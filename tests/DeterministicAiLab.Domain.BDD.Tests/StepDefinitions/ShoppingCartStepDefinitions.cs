@@ -61,7 +61,8 @@ public class ShoppingCartStepDefinitions
     public void ThenTheAppliedPromoCodeShouldBe(string expectedCode)
     {
         _cart.AppliedPromoCode.Should().NotBeNull();
-        _cart.AppliedPromoCode!.Value.Value.Should().Be(expectedCode);
+        var appliedPromoCode = _cart.AppliedPromoCode;
+        appliedPromoCode.Code.Value.Should().Be(expectedCode);
     }
 
     [Then("the cart total price should become {float} UAH")]
