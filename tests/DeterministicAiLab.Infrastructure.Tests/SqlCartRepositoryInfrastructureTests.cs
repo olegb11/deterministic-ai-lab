@@ -3,16 +3,15 @@ using DeterministicAiLab.Domain.ValueObjects;
 using DeterministicAiLab.Infrastructure.Persistence;
 using DeterministicAiLab.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
-using Xunit;
 
-namespace DeterministicAiLab.Infrastructure.IntegrationTests;
+namespace DeterministicAiLab.Infrastructure.Tests;
 
-public class SqlCartRepositoryIntegrationTests
+public class SqlCartRepositoryInfrastructureTests
 {
     private readonly IDbConnectionFactory _connectionFactory;
     private readonly SqlCartRepository _repository;
 
-    public SqlCartRepositoryIntegrationTests()
+    public SqlCartRepositoryInfrastructureTests()
     {
         // Load configuration from appsettings.json
         var configuration = new ConfigurationBuilder()
