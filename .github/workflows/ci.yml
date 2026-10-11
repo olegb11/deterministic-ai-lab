@@ -11,11 +11,10 @@ jobs:
     name: Build & Test (.NET)
     runs-on: ubuntu-latest
 
-    # Add PostgreSQL service container for infrastructure tests
     services:
       postgres:
         image: postgres:15-alpine
-        environment:
+        env:
           POSTGRES_DB: deterministic_ai_lab
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 1111
