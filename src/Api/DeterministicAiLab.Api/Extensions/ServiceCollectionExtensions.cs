@@ -1,7 +1,11 @@
 using DeterministicAiLab.Application.Carts;
 using DeterministicAiLab.Infrastructure.Persistence;
 using DeterministicAiLab.Infrastructure.Repositories;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DeterministicAiLab.Api.Extensions;
 
@@ -28,13 +32,39 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        // TODO: Will be used for registering MediatR and FluentValidation validators
+        var applicationAssembly = typeof(DeterministicAiLab.Application.Carts.Commands.AddItemToCartCommandHandler).Assembly;
+
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
+        services.AddValidatorsFromAssembly(applicationAssembly);
+
         return services;
     }
 
-    public static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services)
+    public static IServiceCollection AddAuthenticationAndAuthorization(
+            this IServiceCollection services,
+            IConfiguration configuration)
     {
-        // TODO: Will be used for registering JWT Bearer authentication and policy-based authorization
+        // Get secret from configuration or use a secure fallback for development
+        var jwtSecret = configuration["Jwt:Secret"] ?? "SuperSecretKeyForDeterministicAiLabDevelopmentOnly2026!";
+        var key = Encoding.UTF8.GetBytes(jwtSecret);
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "DeterministicAiLab.Api",
+                    ValidateAudience = true,
+                    ValidAudience = "DeterministicAiLab.Client",
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuerSigningKey = true
+                };
+            });
+
+        services.AddAuthorization();
+
         return services;
     }
 }

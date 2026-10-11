@@ -1,6 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Domain\DeterministicAiLab.Domain\DeterministicAiLab.Domain.csproj" />
     <ProjectReference Include="..\DeterministicAiLab.Contracts\DeterministicAiLab.Contracts.csproj" />
   </ItemGroup>

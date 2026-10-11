@@ -42,7 +42,7 @@ public class ApplyPromoCodeCommandHandlerTests
             .Returns(promoCode);
 
         // Act
-        await _handler.HandleAsync(command);
+        await _handler.HandleAsync(command, CancellationToken.None);
 
         // Assert
         cart.AppliedPromoCode.Should().NotBeNull();

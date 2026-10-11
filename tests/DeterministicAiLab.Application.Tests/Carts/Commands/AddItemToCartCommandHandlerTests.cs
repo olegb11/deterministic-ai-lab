@@ -24,15 +24,16 @@ public class AddItemToCartCommandHandlerTests
         var cartId = Guid.NewGuid();
         var command = new AddItemToCartCommand(cartId, "PROD-123", 2, 150.00m);
 
+        // Configure mock to return null when cart is not found
         _cartRepositoryMock
-            .GetByIdAsync(cartId, Arg.Any<CancellationToken>())
+            .GetByIdAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>())
             .Returns((Cart?)null);
 
         // Act
-        await _handler.HandleAsync(command);
+        await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await _cartRepositoryMock.Received(1).GetByIdAsync(cartId, Arg.Any<CancellationToken>());
+        await _cartRepositoryMock.Received(1).GetByIdAsync(Arg.Is(cartId), Arg.Any<CancellationToken>());
 
         await _cartRepositoryMock.Received(1).SaveAsync(
             Arg.Is<Cart>(c =>

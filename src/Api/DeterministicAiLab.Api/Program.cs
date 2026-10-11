@@ -1,5 +1,4 @@
 using DeterministicAiLab.Api.Extensions;
-using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplicationServices()
-    .AddAuthenticationAndAuthorization()
-    .AddSwaggerDocumentation();
+    .AddAuthenticationAndAuthorization(builder.Configuration)
+    .AddSwaggerDocumentation()
+    .AddControllers();
 
 var app = builder.Build();
 
@@ -16,7 +16,7 @@ var app = builder.Build();
 app.UseCustomSwagger();
 app.UseCustomPipeline();
 
+app.MapControllers();
 app.MapEndpoints();
 
 app.Run();
-

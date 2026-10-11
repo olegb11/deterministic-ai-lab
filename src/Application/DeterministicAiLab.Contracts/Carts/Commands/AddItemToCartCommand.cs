@@ -1,4 +1,6 @@
-﻿namespace DeterministicAiLab.Contracts.Carts.Commands;
+﻿using MediatR;
+
+namespace DeterministicAiLab.Contracts.Carts.Commands;
 
 /// <summary>
 /// Contract representing the command to add an item to a shopping cart.
@@ -8,4 +10,4 @@ public record AddItemToCartCommand(
     string ProductId,
     int Quantity,
     decimal UnitPrice
-);
+) : IRequest;
