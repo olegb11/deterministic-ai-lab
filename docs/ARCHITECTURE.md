@@ -61,8 +61,8 @@ The solution (`.sln`) must be located at the **root level** (above the `src` and
 │
 └── tests/
     ├── {ProjectName}.Domain.Tests/               <-- Fast Unit Tests: Validates pure domain rules & invariants.
-    ├── {ProjectName}.Application.Tests/          <-- Unit Tests: Validates use cases, handlers, and validators (NSubstitute).
-    ├── {ProjectName}.Domain.BDD.Tests/           <-- BDD Acceptance Tests: Reqnroll step definitions & Ontology validation.
+    ├── {ProjectName}.Application.Tests/          <-- Unit Tests & Architecture: Use cases, handlers, validators, and Ontology/Architecture validation tests.
+    ├── {ProjectName}.Domain.BDD.Tests/           <-- BDD Acceptance Tests: Reqnroll step definitions & feature execution.
     ├── {ProjectName}.Api.IntegrationTests/       <-- Integration Tests: WebApplicationFactory HTTP pipeline & auth flows.
     └── {ProjectName}.Infrastructure.Tests/       <-- Infrastructure Tests: Real Dapper & PostgreSQL integration tests.
 ```
