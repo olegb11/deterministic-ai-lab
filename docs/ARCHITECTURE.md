@@ -36,63 +36,36 @@ Development of a production-grade web application template with strict separatio
 
 The solution (`.sln`) must be located at the **root level** (above the `src` and `tests` directories). The projects must be structured without numeric folder prefixes:
 
-{ProjectName}.sln                               \<-- Solution file at the root level
-
-│
-
+```text
+{ProjectName}.sln                                 <-- Solution file at the root level
 ├── docs/
-
 │   ├── ARCHITECTURE.md
-
 │   ├── METHODOLOGY.md
-
-│   └── specs/                                  \<-- Executable business specifications (.feature files)
-
+│   └── specs/                                    <-- Executable business specifications (.feature files)
 │       └── shopping-cart-policy.feature
-
 │
-
 ├── src/
-
 │   ├── Domain/
-
-│   │   └── {ProjectName}.Domain/               \<-- Pure Domain Entities, Value Objects, Business Invariants
-
+│   │   └── {ProjectName}.Domain/                 <-- Pure Domain Entities, Value Objects, Business Invariants
 │   │
-
 │   ├── Application/
-
-│   │   ├── {ProjectName}.Contracts/            \<-- Immutable DTOs (records) and API Contracts
-
-│   │   └── {ProjectName}.Application/          \<-- CQRS: Commands, Queries, Handlers (MediatR & FluentValidation)
-
+│   │   ├── {ProjectName}.Contracts/              <-- Immutable DTOs (records) and API Contracts
+│   │   └── {ProjectName}.Application/            <-- CQRS: Commands, Queries, Handlers (MediatR & FluentValidation)
 │   │
-
 │   ├── Infrastructure/
-
-│   │   └── {ProjectName}.Infrastructure/       \<-- Dapper Repositories & PostgreSQL persistence
-
+│   │   └── {ProjectName}.Infrastructure/         <-- Dapper Repositories & PostgreSQL persistence
 │   │
-
 │   └── Api/
-
-│       └── {ProjectName}.Api/                  \<-- Thin controllers, modular Program.cs, Swagger, Auth, DI
-
-│           └── Extensions/                     \<-- Extension methods for DI, Authentication, and Pipelines
-
+│       └── {ProjectName}.Api/                    <-- Thin controllers, modular Program.cs, Swagger, Auth, DI
+│           └── Extensions/                       <-- Extension methods for DI, Authentication, and Pipelines
 │
-
 └── tests/
-
-    ├── {ProjectName}.Domain.Tests/             \<-- Fast Unit Tests: Validates pure domain rules & invariants.
-
-    ├── {ProjectName}.Application.Tests/        \<-- Unit Tests: Validates use cases, handlers, and validators (NSubstitute).
-
-    ├── {ProjectName}.Domain.BDD.Tests/         \<-- BDD Acceptance Tests: Reqnroll step definitions & Ontology validation.
-
-    ├── {ProjectName}.Api.IntegrationTests/     \<-- Integration Tests: WebApplicationFactory HTTP pipeline & auth flows.
-
-    └── {ProjectName}.Infrastructure.Tests/     \<-- Infrastructure Tests: Real Dapper & PostgreSQL integration tests.
+    ├── {ProjectName}.Domain.Tests/               <-- Fast Unit Tests: Validates pure domain rules & invariants.
+    ├── {ProjectName}.Application.Tests/          <-- Unit Tests: Validates use cases, handlers, and validators (NSubstitute).
+    ├── {ProjectName}.Domain.BDD.Tests/           <-- BDD Acceptance Tests: Reqnroll step definitions & Ontology validation.
+    ├── {ProjectName}.Api.IntegrationTests/       <-- Integration Tests: WebApplicationFactory HTTP pipeline & auth flows.
+    └── {ProjectName}.Infrastructure.Tests/       <-- Infrastructure Tests: Real Dapper & PostgreSQL integration tests.
+```
 
 ---
 
