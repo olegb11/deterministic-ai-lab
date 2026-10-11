@@ -1,11 +1,12 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Xunit;
 
 namespace DeterministicAiLab.Api.IntegrationTests;
@@ -128,10 +129,21 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
-
-    private string GenerateJwtToken()
+    private static string GenerateJwtToken()
     {
-        var secretKey = "SuperSecretKeyForDeterministicAiLabDevelopmentOnly2026!";
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var secretKey = configuration["Jwt:Secret"]
+                        ?? throw new InvalidOperationException("Jwt:Secret is missing in configuration.");
+        var issuer = configuration["Jwt:Issuer"] 
+                        ?? throw new InvalidOperationException("Jwt:Issuer is missing in configuration.");
+        var audience = configuration["Jwt:Audience"] 
+                        ?? throw new InvalidOperationException("Jwt:Audience is missing in configuration.");
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -143,8 +155,8 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         };
 
         var token = new JwtSecurityToken(
-            issuer: "DeterministicAiLab.Api",
-            audience: "DeterministicAiLab.Client",
+            issuer: issuer,
+            audience: audience,
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: creds

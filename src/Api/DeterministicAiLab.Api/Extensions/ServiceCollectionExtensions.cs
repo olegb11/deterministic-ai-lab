@@ -57,7 +57,8 @@ public static class ServiceCollectionExtensions
             this IServiceCollection services,
             IConfiguration configuration)
     {
-        var jwtSecret = configuration["Jwt:Secret"] ?? "SuperSecretKeyForDeterministicAiLabDevelopmentOnly2026!";
+        var jwtSecret = configuration["Jwt:Secret"] 
+            ?? throw new InvalidOperationException("Jwt:Secret not found.");
         var key = Encoding.UTF8.GetBytes(jwtSecret);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
