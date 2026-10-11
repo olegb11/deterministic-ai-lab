@@ -35,6 +35,24 @@ public class CartsController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost("{cartId}/promo")]
+    public async Task<IActionResult> ApplyPromoCode(
+            Guid cartId,
+            [FromBody] ApplyPromoRequest request,
+            CancellationToken cancellationToken)
+    {
+        var command = new ApplyPromoCodeCommand(
+            cartId,
+            request.PromoCodeText
+        );
+
+        await _sender.Send(command, cancellationToken);
+
+        return Ok();
+    }
 }
 
 public record AddItemRequest(string ProductId, int Quantity, decimal UnitPrice);
+public record ApplyPromoRequest(string PromoCodeText);
+

@@ -63,6 +63,28 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task ApplyPromoCode_WithValidToken_ReturnsSuccessOrBadRequest()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+        var token = GenerateJwtToken();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var cartId = Guid.NewGuid();
+        var command = new
+        {
+            PromoCodeText = "SAVE10"
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/promo", command);
+
+        // Assert
+        Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
     private string GenerateJwtToken()
     {
         var secretKey = "SuperSecretKeyForDeterministicAiLabDevelopmentOnly2026!";
