@@ -89,8 +89,8 @@ public class SqlCartRepositoryInfrastructureTests
         cart.ApplyPromoCode(promoCode);
 
         // Act
-        await _repository.SaveAsync(cart);
-        var loadedCart = await _repository.GetByIdAsync(cartId);
+        await _repository.SaveAsync(cart, TestContext.Current.CancellationToken);
+        var loadedCart = await _repository.GetByIdAsync(cartId, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(loadedCart);

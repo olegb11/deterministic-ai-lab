@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using System;
-using MediatR;
 
 namespace DeterministicAiLab.Contracts.Carts.Commands;
 

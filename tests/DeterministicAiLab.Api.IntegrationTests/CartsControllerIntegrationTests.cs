@@ -33,7 +33,7 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         };
 
         // Act
-        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command);
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -57,7 +57,7 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         };
 
         // Act
-        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command);
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -79,7 +79,7 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         };
 
         // Act
-        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/promo", command);
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/promo", command, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -100,7 +100,7 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         };
 
         // Act
-        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/promo", command);
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/promo", command, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -123,7 +123,7 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         };
 
         // Act
-        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command);
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
