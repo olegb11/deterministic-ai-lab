@@ -1,6 +1,6 @@
 # RFC 0001: Intent Compilation Pipeline for Deterministic AI-Driven Development
 
-**Status:** Draft  
+**Status:** Draft (v0.4 \- Architectural Review Refined)  
 **Author:** Oleg Burlaka  
 **Category:** Software Engineering Framework  
 **License:** CC-BY-4.0
@@ -15,21 +15,18 @@ The central premise is simple:
 
 Modern AI-assisted development often stores requirements, rationale, and design intent inside chat histories. These conversations become hidden system state and gradually introduce ambiguity, context drift, and loss of intent.
 
-ICP proposes that human intent must be represented through executable, version-controlled artifacts. Under this model, Large Language Models (LLMs) are treated as stateless implementation engines operating on explicit constraints and verification contracts.
+ICP proposes that human intent must be represented through version-controlled, executable artifacts, semantically grounded via formal domain ontologies. Under this model, Large Language Models (LLMs) are treated as stateless implementation engines operating on explicit constraints and verification contracts.
 
-The framework addresses five primary sources of non-determinism:
+## Terminology & Definitions
 
-- Intent Leakage  
-- Context Drift  
-- Specification Drift  
-- Test Drift  
-- Code Drift
+- **Intent Leakage:** Loss or distortion of business intent between consecutive compilation stages.  
+- **Semantic Leakage:** Loss or distortion of formally defined ontology semantics during specification authoring.
 
 ## Problem Statement
 
 Most AI-assisted workflows follow the pattern:
 
-Human Intent \-\> Prompt \-\> LLM \-\> Code \-\> Tests
+Human Intent → Prompt → LLM → Code → Tests
 
 This architecture creates several structural weaknesses:
 
@@ -39,8 +36,6 @@ This architecture creates several structural weaknesses:
 - Tests may validate implementation rather than intent.  
 - Reproducibility degrades as context evolves.
 
-As systems grow, correctness becomes increasingly dependent on undocumented conversational context rather than version-controlled artifacts.
-
 This phenomenon is defined as **Intent Leakage**.
 
 ## Design Goals
@@ -49,16 +44,16 @@ The Intent Compilation Pipeline aims to establish:
 
 - Deterministic implementation behavior.  
 - Reproducible AI execution.  
-- Objective verification.  
-- Aggressive detection of intent leakage.  
-- End-to-end traceability.  
+- Objective verification and semantic grounding.  
+- Aggressive detection of intent and semantic leakage.  
+- End-to-end traceability via artifact provenance.  
 - Explicit ownership boundaries between humans and AI systems.
 
 ## Core Principle
 
 Software development is treated as a compilation process:
 
-Business Intent ↓ Executable Specification ↓ Red Tests ↓ Source Code ↓ Running System
+Business Intent ↓ Ontology ↓ Executable Specification ↓ Verification Contracts ↓ Implementation ↓ Running System
 
 Each stage is a more formal representation of the previous stage.
 
@@ -66,7 +61,7 @@ Each stage is a more formal representation of the previous stage.
 
 1. Intent is the primary artifact.  
 2. AI cannot own intent.  
-3. Only executable artifacts may carry authoritative state.  
+3. Only version-controlled executable artifacts and formal ontologies may carry authoritative state.  
 4. Passing tests prove conformance to specification.  
 5. Killed mutants provide evidence of intent preservation.
 
@@ -74,124 +69,93 @@ Each stage is a more formal representation of the previous stage.
 
 | Layer | Component | Ownership |
 | :---- | :---- | :---- |
-| 0 | Domain Invariants | Human |
+| 0 | Domain Semantics (Ontology & Invariants) | Human |
 | 1 | Executable Specifications | Human |
 | 1.5 | Technical Constraints | Human |
-| 2 | Red Tests | Human |
-| 3 | Green Implementation | AI Generated |
+| 2 | Verification Contracts | Human |
+| 3 | Implementation | AI Generated |
 
-### Layer 0: Domain Invariants
+### Layer 0: Domain Semantics
 
-Technology-independent business rules.
+Technology-independent business semantics, formal vocabulary, and rules.
 
-Examples:
+Contains:
 
-- Money values cannot be negative.  
-- Order totals cannot be negative.  
-- Promo codes must be unique.
+- Domain Ontology (`ontology.json`)  
+- Domain Invariants  
+- Rich Domain Types & Value Objects
 
-Purpose:
+Purpose: Prevent semantic drift before behavioral specifications are written, establishing a shared formal vocabulary.
 
-Prevent semantic drift before behavioral specifications are written.
+### Semantic Grounding
+
+Specifications (Gherkin `.feature` files) do not exist in isolation. They undergo automated validation against the formal domain ontology (`ontology.json`) via architectural tests (`OntologyValidationTests`) before entering the verification pipeline. This guarantees that core domain terms and synonyms strictly correspond to the domain model, eliminating **Semantic Leakage**.
 
 ### Layer 1: Executable Specifications
 
-Business intent expressed as executable examples.
-
-Technologies:
-
-- Gherkin  
-- Cucumber  
-- Reqnroll
-
-Example:
-
-Scenario: Valid promo code Given cart total is 1000 When customer enters promo code "SAVE10" Then total should be 900
+Business intent expressed as executable examples via Gherkin / Reqnroll.
 
 ### Layer 1.5: Technical Constraints
 
-Non-functional requirements and architectural boundaries.
+Non-functional requirements and architectural boundaries (performance, security, modular structure, database abstraction via `IDbConnection`).
 
-Examples:
+### Layer 2: Verification Contracts
 
-- Performance requirements  
-- Security requirements  
-- Regulatory requirements  
-- Availability requirements  
-- Architectural constraints  
-- Operational constraints
+Human-authored executable verification contracts (Unit, Integration, and BDD Acceptance tests) defining behavioral boundaries.
 
-Purpose:
+### Layer 3: Implementation
 
-Bridge business intent and implementation realities without polluting business specifications. **Compliance with these constraints is enforced via automated static analysis and architectural policies executed prior to behavioral verification.**
+Minimal C\# code generated by AI to satisfy the current verification contracts.
 
-### Layer 2: Red Tests
+## Development Lifecycle & Phase Model
 
-Human-authored executable verification contracts.
+The lifecycle incorporates specification and verification phases:
 
-Tests define the behavioral boundaries that implementations must satisfy.
+\$\$\\text{Specify} \\longrightarrow \\text{Red} \\longrightarrow \\text{Green} \\longrightarrow \\nvdash (\\text{Rollback}) \\longrightarrow \\text{Refactor} \\longrightarrow \\text{Verify}\$\$
 
-### Layer 3: Green Implementation
-
-Inputs:
-
-- Executable Specifications  
-- Technical Constraints  
-- Types and Interfaces  
-- Failing Test Suite
-
-Output:
-
-- Passing implementation code
-
-AI may propose implementations and design alternatives but holds no final design authority.
+1. **Specify (Human):** Define or update business rules in `docs/specs/*.feature` and semantic grounding in `ontology.json`.  
+2. **Red (Human):** Add failing verification contracts or Reqnroll step bindings.  
+3. **Green (AI):** Implement minimal C\# code in `src/`.  
+4. **Arbiter Check:** Execute local transaction scripts (`./run-tests.sh`). If tests fail, execute `git reset --hard` (rollback).  
+5. **Refactor:** Human reviews code structure and design quality.  
+6. **Verify (Feature Finalization):** Run mutation testing (`./run-tdd-cycle.sh --full`).
 
 ## Verification & Quality Gates
 
-AI Code Generation ↓ Gate 1: Correctness ↓ Gate 2: Resilience ↓ Definition of Done
+### Gate 1: Correctness (Behavioral Conformance)
 
-### Gate 1: Correctness
+All unit, integration, and BDD Reqnroll tests must pass (Exit Code 0).
 
-Question:
+### Gate 2: Resilience (Mutation Testing)
 
-Does the implementation satisfy the specification?
+Tested via **Stryker.NET** (`dotnet stryker --break-at 100`). All non-equivalent mutants in `src/Domain/` and `src/Application/` must be killed.
 
-Criterion:
+## Artifact Provenance & Supply Chain for Intent
 
-All unit, integration, and BDD tests pass.
+To ensure end-to-end traceability, every automated workflow execution captures formal metadata via tool-agnostic artifact provenance (e.g., Git trailers, pipeline metadata):
 
-### Gate 2: Resilience
+- **Intent-Spec-Hash:** Cryptographic reference to the governing feature specification and ontology.  
+- **Verification Results:** Pass/Fail status of the test suite.  
+- **Mutation-Score:** Stryker mutation test score (100% threshold).  
+- **Pipeline-Verdict:** Binary compiler arbitration result.
 
-Question:
+## Evidence Model
 
-Do tests adequately preserve intended business behavior?
-
-Mechanism:
-
-Mutation Testing.
-
-Criterion:
-
-100% of admitted non-equivalent mutants are killed.
-
-Pragmatic Note on Equivalent Mutants: Identifying equivalent mutants manually is labor-intensive. To mitigate this cost, AI assistants may be delegated the primary analysis and classification of surviving mutants, generating a candidate list of equivalent mutants. However, final validation and formal admission remain strictly under Human Engineer authority (Axiom 2).
-
-## Scientific Interpretation
-
-Passing tests demonstrate implementation conformance to specification.
-
-Mutation testing increases confidence that specifications and verification contracts sufficiently preserve intended business behavior.
-
-A surviving mutant is treated as potential Intent Leakage until proven otherwise.
+| Validation Type | Mechanism | Proven Guarantee |
+| :---- | :---- | :---- |
+| Ontology Validation | `OntologyValidationTests` | Semantic Consistency |
+| BDD Acceptance | Reqnroll & Gherkin | Behavioral Conformance |
+| Unit & Integration Tests | xUnit & `WebApplicationFactory` | Implementation Correctness |
+| Mutation Testing | Stryker.NET (100%) | Verification Resilience |
 
 ## Human vs AI Authority Model
 
 | Responsibility Domain | Human Engineer | AI Assistant |
 | :---- | :---- | :---- |
-| Business Intent | Owner | Excluded |
-| Domain Invariants | Owner | Excluded |
+| Business Intent & Ontology | Owner | Excluded |
+| Domain Semantics & Invariants | Owner | Excluded |
 | Executable Specifications | Owner | Excluded |
-| Red Tests | Owner | Excluded |
+| Verification Contracts | Owner | Excluded |
 | Design Approval | Owner | Excluded |
 | Implementation Alternatives | Evaluator | Proposer |
 | Production Code | Reviewer | Generator |
@@ -199,48 +163,20 @@ A surviving mutant is treated as potential Intent Leakage until proven otherwise
 
 ## Trade-offs & Limitations
 
-While the Intent Compilation Pipeline (ICP) provides strict determinism and eliminates Intent Leakage, it introduces specific engineering trade-offs:
-
-1. **High Upfront Cognitive Load & Cost**  
-- Limitation: Writing formal Gherkin specifications (Layer 1), defining technical constraints (Layer 1.5), and authoring red tests (Layer 2\) before implementation requires significantly more upfront effort than exploratory coding.  
-- Justification: ICP is designed for production-ready, mission-critical systems where long-term maintainability, zero-trust AI verification, and predictability outweigh the speed of initial prototyping. For throwaway MVPs, ICP is intentionally over-engineered.  
-2. **The "Chicken-and-Egg" Design Dilemma**  
-- Limitation: To write tests and specifications, humans must define interfaces and data structures beforehand, which can restrict AI's ability to introduce emergent design solutions.  
-- Mitigation: Human engineers must specify what (behavioral contracts and invariants) rather than how (internal implementation details). AI retains full freedom within Layer 3 to choose internal algorithms, design patterns, and structural refactoring as long as all gates pass.  
-3. **Maintenance Overhead of Specifications & Mutants**  
-- Limitation: Changes in business requirements require synchronized updates across specifications, test suites, and mutation testing configurations.  
-- Justification: This friction is a feature, not a bug. It forces explicit synchronization and prevents undocumented drift between what the system does and what the business intends.
+1. **High Upfront Cognitive Load & Cost** — Requires formal ontology and Gherkin definitions before implementation. Justified for high-integrity, production-grade systems.  
+2. **The "Chicken-and-Egg" Design Dilemma** — Humans define interfaces and domain semantics beforehand, restricting AI's architectural drift.  
+3. **Maintenance Overhead** — Changes in requirements require synchronized updates across ontology, specifications, verification contracts, and mutation configs.
 
 ## Definition of Done
 
 A feature is complete when:
 
+- Domain ontology validation passes.  
 - All BDD scenarios pass.  
 - All unit and integration tests pass.  
-- No surviving business-relevant mutants remain.  
-- Equivalent mutants are documented and explicitly admitted.  
-- E2E and system verification pass.
-
-At this point:
-
-Intent \-\> Specification \-\> Tests \-\> Implementation
-
-has no known semantic leakage.
+- No surviving business-relevant mutants remain (100% Stryker score).  
+- Artifact provenance is successfully recorded.
 
 ## Conclusion
 
-The Intent Compilation Pipeline reframes AI-assisted development as a deterministic compilation process.
-
-Its central question is:
-
-> Can human intent survive compilation into executable software without loss of fidelity?
-
-In ICP:
-
-- Intent is persistent.  
-- Conversation is transient.  
-- Specifications are the persistence layer for intent.  
-- Tests verify conformance.  
-- Mutation testing detects potential intent leakage.
-
-Together these principles establish a zero-trust verification model for AI-generated software.
+The Intent Compilation Pipeline reframes AI-assisted development as a deterministic compilation process. Intent is persistent, stored in version-controlled ontologies and specifications, verified by rigorous verification contracts, and protected by mutation testing and artifact provenance.
