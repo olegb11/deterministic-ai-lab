@@ -41,9 +41,13 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        var applicationAssembly = typeof(DeterministicAiLab.Application.Carts.Commands.AddItemToCartCommandHandler).Assembly;
+        var applicationAssembly = typeof(Application.Carts.Commands.AddItemToCartCommandHandler).Assembly;
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(applicationAssembly));
+        services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(applicationAssembly);
+            cfg.AddOpenBehavior(typeof(Application.Behaviors.ValidationBehavior<,>));
+        });
+
         services.AddValidatorsFromAssembly(applicationAssembly);
 
         return services;

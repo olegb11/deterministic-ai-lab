@@ -85,6 +85,50 @@ public class CartsControllerIntegrationTests : IClassFixture<WebApplicationFacto
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
+    [Fact]
+    public async Task ApplyPromoCode_WithInvalidFormat_ReturnsBadRequest()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+        var token = GenerateJwtToken();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var cartId = Guid.NewGuid();
+        var command = new
+        {
+            PromoCodeText = "TOOLONGCODE" // Violates the ^[A-Z0-9]{6}$ pattern
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/promo", command);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AddItemToCart_WithInvalidQuantity_ReturnsBadRequest()
+    {
+        // Arrange
+        var client = _factory.CreateClient();
+        var token = GenerateJwtToken();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var cartId = Guid.NewGuid();
+        var command = new
+        {
+            ProductId = "prod-123",
+            Quantity = 0, // Invalid quantity
+            UnitPrice = 100.00m
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync($"/api/carts/{cartId}/items", command);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private string GenerateJwtToken()
     {
         var secretKey = "SuperSecretKeyForDeterministicAiLabDevelopmentOnly2026!";
