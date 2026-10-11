@@ -1,0 +1,27 @@
+﻿{
+  "stryker-config": {
+    "project-type": "Dotnet",
+    "solution": "DeterministicAiLab.sln",
+    "target-projects": [
+      "src/Domain/DeterministicAiLab.Domain/DeterministicAiLab.Domain.csproj",
+      "src/Application/DeterministicAiLab.Application/DeterministicAiLab.Application.csproj"
+    ],
+    "test-projects": [
+      "tests/DeterministicAiLab.Domain.Tests/DeterministicAiLab.Domain.Tests.csproj",
+      "tests/DeterministicAiLab.Application.Tests/DeterministicAiLab.Application.Tests.csproj",
+      "tests/DeterministicAiLab.Domain.BDD.Tests/DeterministicAiLab.Domain.BDD.Tests.csproj"
+    ],
+    "mutation-level": "Standard",
+    "thresholds": {
+      "high": 100,
+      "low": 90,
+      "break": 100
+    },
+    "reporters": [
+      "progress",
+      "cleartext",
+      "html"
+    ],
+    "concurrency": 4
+  }
+}
