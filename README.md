@@ -36,6 +36,6 @@ To run the test suite locally across platforms (Linux, macOS, Windows via Git Ba
 
 For in-depth details on the project's design and operational principles, refer to:
 
-* [**ARCHITECTURE.md**](http://docs/ARCHITECTURE.md) — Architectural overview, core components, and system design patterns.  
-* [**METHODOLOGY.md**](http://docs/METHODOLOGY.md) — Detailed methodologies, execution flow, TDD gatekeeping mechanisms, and mutation testing guidelines.  
-* [**RFC-0001 (Intent Compilation Pipeline)**](http://docs/rfcs/RFC-0001-ICP-Public-Draft.md) — Core engineering framework specification.
+* [**ARCHITECTURE.md**](./docs/ARCHITECTURE.md) — Architectural overview, core components, and system design patterns.  
+* [**METHODOLOGY.md**](./docs/METHODOLOGY.md) — Detailed methodologies, execution flow, TDD gatekeeping mechanisms, and mutation testing guidelines.  
+* [**RFC-0001 (Intent Compilation Pipeline)**](./docs/rfcs/RFC-0001-ICP-Public-Draft.md) — Core engineering framework specification.
