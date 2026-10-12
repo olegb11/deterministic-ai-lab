@@ -11,7 +11,7 @@ This RFC proposes the **Intent Compilation Pipeline (ICP)**, a deterministic sof
 
 The central premise is simple:
 
-Conversation is transient. Intent must be persistent.
+**Conversation is transient. Intent must be persistent.**
 
 Modern AI-assisted development often stores requirements, rationale, and design intent inside chat histories. These conversations become hidden system state and gradually introduce ambiguity, context drift, and loss of intent.
 
